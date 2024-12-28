@@ -17,11 +17,12 @@ import {
   Typography,
   Menu,
   MenuItem,
+  Collapse,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
-  Inbox as InboxIcon,
   ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
   Logout as LogoutIcon,
   Settings as SettingsIcon,
   AccountCircle as AccountCircleIcon,
@@ -33,78 +34,116 @@ import TaskIcon from '@mui/icons-material/Task';
 
 // Interface para descrever as propriedades do layout
 interface LayoutProps {
-  children: React.ReactNode; // Conteúdo dinâmico renderizado na área principal
+  children: React.ReactNode;
 }
 
 // Interface para representar cada página no menu lateral
 interface Page {
-  id: number; // Identificador único da página
-  title: string; // Título da página
-  icon?: React.ReactNode; // Ícone associado à página (opcional)
+  id: number;
+  title: string;
+  icon?: React.ReactNode;
+  subPages?: Page[];
 }
 
-// Largura fixa do drawer (menu lateral)
+// Largura fixa do drawer
 const drawerWidth = 240;
 
 const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
-  // Estado para controlar se o menu lateral está aberto em dispositivos móveis
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  // Estado para controlar o elemento ancorado do menu suspenso (dropdown) na AppBar
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
 
-  // Alterna a abertura/fechamento do menu lateral
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  // Abre o menu suspenso na barra superior
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  // Fecha o menu suspenso na barra superior
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
-  // Definição das páginas e seus ícones no menu lateral
-  const pages: Record<string, Page> = {
-    Documentos: {
-      id: 1,
-      title: 'Documentos',
-      icon: <FolderIcon />, // Ícone personalizado
-    },
-    Indicadores: {
-      id: 2,
-      title: 'Indicadores',
-      icon: <SpaceDashboardOutlined />, // Ícone personalizado
-    },
-    Notificações: {
-      id: 3,
-      title: 'Notificações',
-      icon: <CircleNotificationsIcon />, // Ícone personalizado
-    },
-    Tarefas: {
-      id: 4,
-      title: 'Tarefas',
-      icon: <TaskIcon />, // Ícone personalizado
-    },
+  const handleSubMenuToggle = (id: number) => {
+    setOpenSubMenu((prevOpen) => (prevOpen === id ? null : id));
   };
 
-  // Conteúdo do menu lateral
+  const pages: Page[] = [
+    {
+      id: 1,
+      title: 'Documentos',
+      icon: <FolderIcon />,
+      subPages: [
+        { id: 11, title: 'Upload'},
+        { id: 12, title: 'Consultar'},
+        { id: 13, title: 'Relatórios'},
+      ],
+    },
+    {
+      id: 2,
+      title: 'Indicadores',
+      icon: <SpaceDashboardOutlined />,
+      subPages: [
+        { id: 21, title: 'Gráficos' },
+        { id: 22, title: 'Relatórios' },
+      ],
+    },
+    {
+      id: 3,
+      title: 'Notificações',
+      icon: <CircleNotificationsIcon />,
+      subPages: [
+        { id: 31, title: 'Registrar' },
+        { id: 32, title: 'Minhas notificações' },
+        { id: 33, title: 'Plano de Ação' },
+      ],
+    },
+    {
+      id: 4,
+      title: 'Tarefas',
+      icon: <TaskIcon />,
+      subPages: [
+        { id: 41, title: 'Controle de Atividades' },
+        { id: 42, title: 'Prazos'},
+      ],
+    },
+  ];
+
   const drawer = (
     <div>
-      <Toolbar /> {/* Espaço para alinhar o conteúdo abaixo da AppBar */}
+      <Toolbar />
       <List>
-        {Object.keys(pages).map((key) => (
-          <ListItem key={pages[key].id}>
-            <ListItemButton>
-              <ListItemIcon>{pages[key].icon}</ListItemIcon> {/* Ícone da página */}
-              <ListItemText primary={pages[key].title} /> {/* Título da página */}
-              <ExpandMoreIcon /> {/* Ícone de expansão */}
-            </ListItemButton>
-          </ListItem>
+        {pages.map((page) => (
+          <div key={page.id}>
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => handleSubMenuToggle(page.id)}>
+                <ListItemIcon>{page.icon}</ListItemIcon>
+                <ListItemText primary={page.title} />
+                {page.subPages ? (
+                  openSubMenu === page.id ? (
+                    <ExpandLessIcon />
+                  ) : (
+                    <ExpandMoreIcon />
+                  )
+                ) : null}
+              </ListItemButton>
+            </ListItem>
+            {page.subPages && (
+              <Collapse in={openSubMenu === page.id} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {page.subPages.map((subPage) => (
+                    <ListItem key={subPage.id} disablePadding>
+                      <ListItemButton sx={{ pl: 4 }}>
+                        <ListItemIcon>{subPage.icon}</ListItemIcon>
+                        <ListItemText primary={subPage.title} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Collapse>
+            )}
+          </div>
         ))}
       </List>
     </div>
@@ -112,20 +151,16 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* Reseta estilos padrões do navegador */}
       <CssBaseline />
-
-      {/* Barra superior fixa */}
       <AppBar
         position="fixed"
         sx={{
-          width: { sm: '100%' }, // Largura total em telas pequenas
-          zIndex: (theme) => theme.zIndex.drawer + 1, // Garantir que a AppBar fique acima do drawer
-          ml: { sm: `${drawerWidth}px` }, // Margem esquerda em telas maiores
+          width: { sm: '100%' },
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          ml: { sm: `${drawerWidth}px` },
         }}
       >
         <Toolbar>
-          {/* Botão para abrir/fechar o menu lateral (visível em dispositivos móveis) */}
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -135,21 +170,13 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
           >
             <MenuIcon />
           </IconButton>
-
-          {/* Título da barra superior */}
           <Typography variant="h5" noWrap component="div">
             Sistema de Qualidade
           </Typography>
-
-          {/* Espaço flexível para empurrar o ícone de perfil para a direita */}
           <Box sx={{ flexGrow: 1 }} />
-
-          {/* Ícone de perfil que abre o menu suspenso */}
           <IconButton color="inherit" onClick={handleMenuOpen}>
             <AccountCircleIcon />
           </IconButton>
-
-          {/* Menu suspenso com opções de perfil */}
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
@@ -170,33 +197,28 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
           </Menu>
         </Toolbar>
       </AppBar>
-
-      {/* Menu lateral */}
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
       >
-        {/* Drawer temporário para dispositivos móveis */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Melhora a performance ao manter o drawer no DOM
+            keepMounted: true,
           }}
           sx={{
-            display: { xs: 'block', sm: 'none' }, // Visível apenas em telas pequenas
+            display: { xs: 'block', sm: 'none' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
           }}
         >
           {drawer}
         </Drawer>
-
-        {/* Drawer permanente para telas maiores */}
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: 'none', sm: 'block' }, // Visível apenas em telas grandes
+            display: { xs: 'none', sm: 'block' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
           }}
           open
@@ -204,18 +226,16 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
           {drawer}
         </Drawer>
       </Box>
-
-      {/* Conteúdo principal */}
       <Box
         component="main"
         sx={{
-          flexGrow: 1, // Ocupa o espaço restante
-          p: 3, // Padding
-          width: { sm: `calc(100% - ${drawerWidth}px)` }, // Ajusta a largura
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
         }}
       >
-        <Toolbar /> {/* Espaçamento abaixo da AppBar */}
-        {children} {/* Conteúdo dinâmico renderizado aqui */}
+        <Toolbar />
+        {children}
       </Box>
     </Box>
   );

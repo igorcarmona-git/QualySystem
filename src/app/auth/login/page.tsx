@@ -25,7 +25,7 @@ const LoginPage: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        bgcolor: '#e9f0f7',
+        bgcolor: 'white',
       }}
     >
       <Box
@@ -36,6 +36,7 @@ const LoginPage: React.FC = () => {
           boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
           width: '100%',
           maxWidth: 400,
+          border: '1px solid #fff4e3',
         }}
       >
         <Typography variant="h4" component="h1" align="center" sx={{ fontWeight: 'bold', mb: 2 }}>
