@@ -5,7 +5,6 @@ import {
   AppBar,
   Box,
   CssBaseline,
-  Divider,
   Drawer,
   IconButton,
   List,
@@ -18,6 +17,7 @@ import {
   Menu,
   MenuItem,
   Collapse,
+  Divider,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -72,43 +72,43 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
   const pages: Page[] = [
     {
       id: 1,
-      title: 'Documentos',
-      icon: <FolderIcon />,
+      title: 'Notificações',
+      icon: <CircleNotificationsIcon />,
       subPages: [
-        { id: 11, title: 'Upload'},
-        { id: 12, title: 'Consultar'},
-        { id: 13, title: 'Relatórios'},
+        { id: 11, title: 'Registrar' },
+        { id: 12, title: 'Minhas notificações' },
+        { id: 13, title: 'Plano de Ação' },
       ],
     },
     {
       id: 2,
-      title: 'Indicadores',
-      icon: <SpaceDashboardOutlined />,
+      title: 'Tarefas',
+      icon: <TaskIcon />,
       subPages: [
-        { id: 21, title: 'Gráficos' },
-        { id: 22, title: 'Relatórios' },
+        { id: 21, title: 'Controle de Atividades' },
+        { id: 22, title: 'Prazos' },
       ],
     },
     {
       id: 3,
-      title: 'Notificações',
-      icon: <CircleNotificationsIcon />,
+      title: 'Documentos',
+      icon: <FolderIcon />,
       subPages: [
-        { id: 31, title: 'Registrar' },
-        { id: 32, title: 'Minhas notificações' },
-        { id: 33, title: 'Plano de Ação' },
+        { id: 31, title: 'Upload' },
+        { id: 32, title: 'Consultar' },
+        { id: 33, title: 'Relatórios' },
       ],
     },
     {
       id: 4,
-      title: 'Tarefas',
-      icon: <TaskIcon />,
+      title: 'Indicadores',
+      icon: <SpaceDashboardOutlined />,
       subPages: [
-        { id: 41, title: 'Controle de Atividades' },
-        { id: 42, title: 'Prazos'},
+        { id: 41, title: 'Gráficos' },
+        { id: 42, title: 'Relatórios' },
       ],
     },
-  ];
+  ];  
 
   const drawer = (
     <div>
@@ -175,13 +175,17 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton color="inherit" onClick={handleMenuOpen}>
-            <AccountCircleIcon />
+            <AccountCircleIcon fontSize='large' />
           </IconButton>
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
           >
+            <div className='flex p-2 items-center justify-center'>
+              <span>Nome do Usuário</span>
+            </div>
+            <Divider variant="fullWidth" color='blue' />
             <MenuItem>
               <SettingsIcon sx={{ mr: 1 }} />
               Configurações
