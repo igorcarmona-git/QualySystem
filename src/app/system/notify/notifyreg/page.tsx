@@ -11,6 +11,10 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
+  Radio,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
 } from "@mui/material";
 import { useState } from "react";
 import { PATIENT_RACE, SECTORS, TYPE_NOTIFICATION } from "@/utils/constants";
@@ -124,7 +128,7 @@ export default function NotifyReg() {
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label="Nome do Paciente (Abreviação)"
+              label="Nome do Paciente"
               variant="outlined"
               value={formData.patientName}
               onChange={(e) => handleChange("patientName", e.target.value)}
@@ -150,6 +154,7 @@ export default function NotifyReg() {
           </Grid>
           {isNotifyNC && (
             <Grid item xs={12} sm={3}>
+              <FormControl fullWidth>
                 <InputLabel id="patientRaceLabel">Raça/Cor</InputLabel>
                 <Select
                     fullWidth
@@ -164,6 +169,7 @@ export default function NotifyReg() {
                     </MenuItem>
                 ))}
                 </Select>
+              </FormControl>
             </Grid>
           )}
 
@@ -199,6 +205,7 @@ export default function NotifyReg() {
             <TextField
               fullWidth
               label="Diagnóstico"
+              rows={4}
               variant="outlined"
               value={formData.diagnostic}
               onChange={(e) => handleChange("diagnostic", e.target.value)}
@@ -312,33 +319,32 @@ export default function NotifyReg() {
 
           {/* Envolvido no Incidente e Desejo Anonimato */}
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel id="involvedLabel">Estou Envolvido no Incidente</InputLabel>
-              <Select
-                labelId="involvedLabel"
-                label="Estou Envolvido no Incidente"
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Estou Envolvido no Incidente</FormLabel>
+              <RadioGroup
+                row
                 value={formData.involved}
                 onChange={(e) => handleChange("involved", e.target.value)}
               >
-                <MenuItem value="Sim">Sim</MenuItem>
-                <MenuItem value="Não">Não</MenuItem>
-              </Select>
+                <FormControlLabel value="Sim" control={<Radio />} label="Sim" />
+                <FormControlLabel value="Não" control={<Radio />} label="Não" />
+              </RadioGroup>
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel id="anonymousLabel">Desejo Manter Anonimato</InputLabel>
-              <Select
-                labelId="anonymousLabel"
-                label="Desejo Manter Anonimato"
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Desejo Manter Anonimato</FormLabel>
+              <RadioGroup
+                row
                 value={formData.anonymous}
                 onChange={(e) => handleChange("anonymous", e.target.value)}
               >
-                <MenuItem value="Sim">Sim</MenuItem>
-                <MenuItem value="Não">Não</MenuItem>
-              </Select>
+                <FormControlLabel value="Sim" control={<Radio />} label="Sim" />
+                <FormControlLabel value="Não" control={<Radio />} label="Não" />
+              </RadioGroup>
             </FormControl>
           </Grid>
+
 
           {/* Botão de Envio */}
           <Grid item xs={12}>

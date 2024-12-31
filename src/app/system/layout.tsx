@@ -31,6 +31,7 @@ import {
 import FolderIcon from '@mui/icons-material/Folder';
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import TaskIcon from '@mui/icons-material/Task';
+import { useRouter } from 'next/navigation';
 
 // Interface para descrever as propriedades do layout
 interface LayoutProps {
@@ -49,6 +50,7 @@ interface Page {
 const drawerWidth = 240;
 
 const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
@@ -134,7 +136,11 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
                 <List component="div" disablePadding>
                   {page.subPages.map((subPage) => (
                     <ListItem key={subPage.id} disablePadding>
-                      <ListItemButton sx={{ pl: 4 }}>
+                      <ListItemButton sx={{ pl: 4 }} onClick={() => {
+                        if(subPage.title === 'Registrar'){
+                          router.push('/system/notify/notifyreg');
+                        }
+                      }}>
                         <ListItemIcon>{subPage.icon}</ListItemIcon>
                         <ListItemText primary={subPage.title} />
                       </ListItemButton>
@@ -170,7 +176,7 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h5" noWrap component="div">
+          <Typography onClick={() => router.push('/system')} sx={{ cursor: 'pointer' }} variant="h5" noWrap component="div">
             Sistema de Qualidade
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
