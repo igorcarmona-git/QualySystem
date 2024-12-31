@@ -38,13 +38,46 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-// Interface para representar cada página no menu lateral
-interface Page {
-  id: number;
-  title: string;
-  icon?: React.ReactNode;
-  subPages?: Page[];
-}
+export const pages: Page[] = [
+  {
+    id: 1,
+    title: 'Notificações',
+    icon: <CircleNotificationsIcon />,
+    subPages: [
+      { id: 11, title: 'Registrar' },
+      { id: 12, title: 'Minhas notificações' },
+      { id: 13, title: 'Plano de Ação' },
+    ],
+  },
+  {
+    id: 2,
+    title: 'Tarefas',
+    icon: <TaskIcon />,
+    subPages: [
+      { id: 21, title: 'Controle de Atividades' },
+      { id: 22, title: 'Prazos' },
+    ],
+  },
+  {
+    id: 3,
+    title: 'Documentos',
+    icon: <FolderIcon />,
+    subPages: [
+      { id: 31, title: 'Upload' },
+      { id: 32, title: 'Consultar' },
+      { id: 33, title: 'Relatórios' },
+    ],
+  },
+  {
+    id: 4,
+    title: 'Indicadores',
+    icon: <SpaceDashboardOutlined />,
+    subPages: [
+      { id: 41, title: 'Gráficos' },
+      { id: 42, title: 'Relatórios' },
+    ],
+  },
+];  
 
 // Largura fixa do drawer
 const drawerWidth = 240;
@@ -137,7 +170,7 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
                   {page.subPages.map((subPage) => (
                     <ListItem key={subPage.id} disablePadding>
                       <ListItemButton sx={{ pl: 4 }} onClick={() => {
-                        if(subPage.title === 'Registrar'){
+                        if(subPage.id === 11){ //Notificações - Registrar
                           router.push('/system/notify/notifyreg');
                         }
                       }}>

@@ -15,10 +15,13 @@ import {
   FormLabel,
   RadioGroup,
   FormControlLabel,
+  Alert,
+  FormHelperText,
 } from "@mui/material";
 import { useState } from "react";
-import { PATIENT_RACE, SECTORS, TYPE_NOTIFICATION } from "@/utils/constants";
+import { AGE_RANGE, DAMAGE_DEGREE, PATIENT_RACE, SECTORS, TYPE_NOTIFICATION } from "@/utils/constants";
 import { notifySchema } from "@/utils/validations";
+import { z } from "zod";
 
 export default function NotifyReg() {
    // Estados para gerenciar os campos
@@ -61,7 +64,22 @@ export default function NotifyReg() {
           ...prev,
           [field]: "", // Limpa o erro ao alterar o campo
         }));
-    };     
+    };
+
+    const handleSubmit = () => {
+        try {
+          const validation = notifySchema.parse(formData);
+          console.log(validation);
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            const validationErrors: Record<string, string> = {};
+            error.issues.forEach((issue) => {
+              validationErrors[issue.path[0]] = issue.message;
+            });
+            setErrors(validationErrors);
+          }
+        }
+    };
 
   return (
     <Container maxWidth="xl">
@@ -84,7 +102,7 @@ export default function NotifyReg() {
             <TextField
               fullWidth
               label="Data da Ocorrência"
-              type="string"
+              type="date"
               InputLabelProps={{ shrink: true }}
               value={formData.dateOccurrence}
               onChange={(e) => handleChange("dateOccurrence", e.target.value)}
@@ -96,7 +114,7 @@ export default function NotifyReg() {
             <TextField
               fullWidth
               label="Hora da Ocorrência"
-              type="string"
+              type="time"
               InputLabelProps={{ shrink: true }}
               value={formData.timeOccurrence}
               onChange={(e) => handleChange("timeOccurrence", e.target.value)}
@@ -152,7 +170,7 @@ export default function NotifyReg() {
               </Select>
             </FormControl>
           </Grid>
-          {isNotifyNC && (
+          {!isNotifyNC && (
             <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
                 <InputLabel id="patientRaceLabel">Raça/Cor</InputLabel>
@@ -174,29 +192,36 @@ export default function NotifyReg() {
           )}
 
           {/* Idade e Data de Internação */}
-          {isNotifyNC && (
+          {!isNotifyNC && (
             <>
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        fullWidth
-                        label="Idade"
-                        type="number"
-                        variant="outlined"
-                        value={formData.patientAge}
-                        onChange={(e) => handleChange("patientAge", Number(e.target.value))}
-                    />
-                    </Grid>
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        fullWidth
-                        label="Data de Internação do Paciente"
-                        type="string"
-                        placeholder="DD/MM/AAAA"
-                        InputLabelProps={{ shrink: true }}
-                        value={formData.admissionDate}
-                        onChange={(e) => handleChange("admissionDate", e.target.value)}
-                    />
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="agePatientLabel">Idade</InputLabel>
+                  <Select
+                    labelId="agePatientLabel"
+                    label="Idade"
+                    value={formData.patientAge}
+                    onChange={(e) => handleChange("patientAge", e.target.value)}
+                  >
+                  {AGE_RANGE.map((age) => (
+                      <MenuItem key={age.id} value={age.name}>
+                          {age.name}
+                      </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
                 </Grid>
+              <Grid item xs={12} sm={6}>
+                  <TextField
+                      fullWidth
+                      label="Data de Internação do Paciente"
+                      type="date"
+                      placeholder="DD/MM/AAAA"
+                      InputLabelProps={{ shrink: true }}
+                      value={formData.admissionDate}
+                      onChange={(e) => handleChange("admissionDate", e.target.value)}
+                  />
+              </Grid>
             </>
           )}
 
@@ -205,8 +230,8 @@ export default function NotifyReg() {
             <TextField
               fullWidth
               label="Diagnóstico"
-              rows={4}
               variant="outlined"
+              placeholder="Diagnóstico do paciente"
               value={formData.diagnostic}
               onChange={(e) => handleChange("diagnostic", e.target.value)}
             />
@@ -216,7 +241,8 @@ export default function NotifyReg() {
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Registro"
+              label="Registro do Paciente"
+              type="number"
               variant="outlined"
               value={formData.registerPatient}
               onChange={(e) => handleChange("registerPatient", Number(e.target.value))}
@@ -240,7 +266,7 @@ export default function NotifyReg() {
           </Grid>
 
           {/* Grau do Dano */}
-          {isNotifyNC && (
+          {!isNotifyNC && (
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <InputLabel id="damageDegreeLabel">Grau do Dano</InputLabel>
@@ -250,9 +276,11 @@ export default function NotifyReg() {
                   value={formData.damageDegree}
                   onChange={(e) => handleChange("damageDegree", e.target.value)}
                 >
-                  <MenuItem value="1">Baixo</MenuItem>
-                  <MenuItem value="2">Médio</MenuItem>
-                  <MenuItem value="3">Alto</MenuItem>
+                  {DAMAGE_DEGREE.map((degree) => (
+                    <MenuItem key={degree.id} value={degree.name}>
+                      {degree.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -264,6 +292,7 @@ export default function NotifyReg() {
               fullWidth
               label="Título"
               variant="outlined"
+              placeholder="Título da notificação"
               value={formData.title}
               onChange={(e) => handleChange("title", e.target.value)}
             />
@@ -284,10 +313,10 @@ export default function NotifyReg() {
           {/* Notificante e Notificado */}
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
-              <InputLabel id="sectorNotifyLabel">Notificante</InputLabel>
+              <InputLabel id="sectorNotifyLabel">Setor notificante</InputLabel>
               <Select
                 labelId="sectorNotifyLabel"
-                label="Notificante"
+                label="Setor notificante"
                 value={formData.sectorNotify}
                 onChange={(e) => handleChange("sectorNotify", e.target.value)}
               >
@@ -301,10 +330,10 @@ export default function NotifyReg() {
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
-              <InputLabel id="sectorNotifiedLabel">Notificado</InputLabel>
+              <InputLabel id="sectorNotifiedLabel">Setor notificado</InputLabel>
               <Select
                 labelId="sectorNotifiedLabel"
-                label="Notificado"
+                label="Setor notificado"
                 value={formData.sectorNotified}
                 onChange={(e) => handleChange("sectorNotified", e.target.value)}
               >
@@ -315,6 +344,9 @@ export default function NotifyReg() {
                 ))}
               </Select>
             </FormControl>
+            {isSectorsEqual && (
+              <FormHelperText error>Os setores notificante e notificado devem ser diferentes.</FormHelperText>
+            )}
           </Grid>
 
           {/* Envolvido no Incidente e Desejo Anonimato */}
@@ -352,7 +384,7 @@ export default function NotifyReg() {
               disabled={isSectorsEqual}
               variant="contained"
               color="primary"
-              onClick={() => console.log("Notificação registrada com sucesso!")}
+              onClick={() => handleSubmit()}
               sx={{ mt: 3, mb: 2 }}
             >
               Enviar à Qualidade
