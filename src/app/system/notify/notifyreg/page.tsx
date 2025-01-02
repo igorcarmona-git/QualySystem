@@ -15,71 +15,48 @@ import {
   FormLabel,
   RadioGroup,
   FormControlLabel,
-  Alert,
   FormHelperText,
 } from "@mui/material";
-import { useState } from "react";
 import { AGE_RANGE, DAMAGE_DEGREE, PATIENT_RACE, SECTORS, TYPE_NOTIFICATION } from "@/utils/constants";
-import { notifySchema } from "@/utils/validations";
-import { z } from "zod";
+import { notifySchema } from "@/utils/validations/notifySchema";
+import { handleSubmitZod } from "@/utils/common/form/handleSubmitZod";
+import { useForm } from "@/utils/common/form/useForm";
 
 export default function NotifyReg() {
-   // Estados para gerenciar os campos
-    const [formData, setFormData] = useState({
-        sectorNotify: "",
-        sectorNotified: "",
-        typeNotify: "",
-        description: "",
-        diagnostic: "",
-        dateOccurrence: "",
-        timeOccurrence: "",
-        patientName: "",
-        patientSex: "",
-        patientRace: "",
-        patientAge: "",
-        admissionDate: "",
-        eventType: "",
-        damageDegree: "",
-        title: "",
-        involved: "",
-        anonymous: "",
-        registerPatient: 0,
-    });
+  const { formData, errors, setErrors, handleChange } = useForm({
+    sectorNotify: "",
+    sectorNotified: "",
+    typeNotify: "",
+    description: "",
+    diagnostic: "",
+    dateOccurrence: "",
+    timeOccurrence: "",
+    patientName: "",
+    patientSex: "",
+    patientRace: "",
+    patientAge: "",
+    admissionDate: "",
+    eventType: "",
+    damageDegree: "",
+    title: "",
+    involved: "",
+    anonymous: "",
+    registerPatient: "",
+  });
 
-    // Estados para gerenciar os erros
-    const [errors, setErrors] = useState<Record<string, string>>({});
+  // Validations
+  const isSectorsEqual: boolean = 
+    formData.sectorNotify === formData.sectorNotified && formData.sectorNotify !== '';
+  const isNotifyNC: boolean = formData.typeNotify === "Não conformidade";
 
-    // Validations
-    const isSectorsEqual: boolean = 
-        formData.sectorNotify === formData.sectorNotified && formData.sectorNotify !== '';
-    const isNotifyNC: boolean = 
-        formData.typeNotify === "Não conformidade";
-
-    const handleChange = (field: string, value: string | number) => {
-        setFormData((prev) => ({
-          ...prev,
-          [field]: value,
-        }));
-        setErrors((prev) => ({
-          ...prev,
-          [field]: "", // Limpa o erro ao alterar o campo
-        }));
-    };
-
-    const handleSubmit = () => {
-        try {
-          const validation = notifySchema.parse(formData);
-          console.log(validation);
-        } catch (error) {
-          if (error instanceof z.ZodError) {
-            const validationErrors: Record<string, string> = {};
-            error.issues.forEach((issue) => {
-              validationErrors[issue.path[0]] = issue.message;
-            });
-            setErrors(validationErrors);
-          }
-        }
-    };
+  const handleSubmit = () => {
+    const validation = handleSubmitZod(notifySchema, formData, setErrors);
+    console.log(validation);
+    if (validation) {
+      console.log("Dados validados:", validation);
+    }
+    console.error("Erros de validação", validation);
+  };
 
   return (
     <Container maxWidth="xl">
@@ -131,6 +108,7 @@ export default function NotifyReg() {
                 labelId="typeNotifyLabel"
                 label="Tipo de Notificação"
                 value={formData.typeNotify}
+                error={!!errors.typeNotify}
                 onChange={(e) => handleChange("typeNotify", e.target.value)}
               >
                 {TYPE_NOTIFICATION.map((type) => (
@@ -139,6 +117,7 @@ export default function NotifyReg() {
                   </MenuItem>
                 ))}
               </Select>
+              {errors.typeNotify && <FormHelperText error>{errors.typeNotify}</FormHelperText>}
             </FormControl>
           </Grid>
 
@@ -149,6 +128,7 @@ export default function NotifyReg() {
               label="Nome do Paciente"
               variant="outlined"
               value={formData.patientName}
+              placeholder="Nome do paciente completo"
               onChange={(e) => handleChange("patientName", e.target.value)}
               error={!!errors.patientName}
               helperText={errors.patientName}   
@@ -163,11 +143,13 @@ export default function NotifyReg() {
                 labelId="patientSexLabel"
                 label="Sexo"
                 value={formData.patientSex}
+                error={!!errors.patientSex}
                 onChange={(e) => handleChange("patientSex", e.target.value)}
               >
                 <MenuItem value="M">Masculino</MenuItem>
                 <MenuItem value="F">Feminino</MenuItem>
               </Select>
+              {errors.patientSex && <FormHelperText error>{errors.patientSex}</FormHelperText>}
             </FormControl>
           </Grid>
           {!isNotifyNC && (
@@ -178,6 +160,7 @@ export default function NotifyReg() {
                     fullWidth
                     labelId="patientRaceLabel"
                     label="Raça/Cor"
+                    error={!!errors.patientRace}
                     value={formData.patientRace}
                     onChange={(e) => handleChange("patientRace", e.target.value)}
                 >
@@ -187,6 +170,7 @@ export default function NotifyReg() {
                     </MenuItem>
                 ))}
                 </Select>
+                {errors.patientRace && <FormHelperText error>{errors.patientRace}</FormHelperText>}
               </FormControl>
             </Grid>
           )}
@@ -200,6 +184,7 @@ export default function NotifyReg() {
                   <Select
                     labelId="agePatientLabel"
                     label="Idade"
+                    error={!!errors.patientAge}
                     value={formData.patientAge}
                     onChange={(e) => handleChange("patientAge", e.target.value)}
                   >
@@ -217,6 +202,8 @@ export default function NotifyReg() {
                       label="Data de Internação do Paciente"
                       type="date"
                       placeholder="DD/MM/AAAA"
+                      error={!!errors.admissionDate}
+                      helperText={errors.admissionDate}
                       InputLabelProps={{ shrink: true }}
                       value={formData.admissionDate}
                       onChange={(e) => handleChange("admissionDate", e.target.value)}
@@ -232,6 +219,8 @@ export default function NotifyReg() {
               label="Diagnóstico"
               variant="outlined"
               placeholder="Diagnóstico do paciente"
+              error={!!errors.diagnostic}
+              helperText={errors.diagnostic}
               value={formData.diagnostic}
               onChange={(e) => handleChange("diagnostic", e.target.value)}
             />
@@ -242,10 +231,13 @@ export default function NotifyReg() {
             <TextField
               fullWidth
               label="Registro do Paciente"
-              type="number"
+              type="string"
               variant="outlined"
+              error={!!errors.registerPatient}
+              helperText={errors.registerPatient}
+              placeholder="Digite apenas números do registro do paciente"
               value={formData.registerPatient}
-              onChange={(e) => handleChange("registerPatient", Number(e.target.value))}
+              onChange={(e) => handleChange("registerPatient", e.target.value)}
             />
           </Grid>
 
@@ -257,11 +249,13 @@ export default function NotifyReg() {
                 labelId="eventTypeLabel"
                 label="Tipo de Evento"
                 value={formData.eventType}
+                error={!!errors.eventType}
                 onChange={(e) => handleChange("eventType", e.target.value)}
               >
                 <MenuItem value="1">Evento 1</MenuItem>
                 <MenuItem value="2">Evento 2</MenuItem>
               </Select>
+              {errors.eventType && <FormHelperText error>{errors.eventType}</FormHelperText>}
             </FormControl>
           </Grid>
 
@@ -274,6 +268,7 @@ export default function NotifyReg() {
                   labelId="damageDegreeLabel"
                   label="Grau do Dano"
                   value={formData.damageDegree}
+                  error={!!errors.damageDegree}
                   onChange={(e) => handleChange("damageDegree", e.target.value)}
                 >
                   {DAMAGE_DEGREE.map((degree) => (
@@ -282,6 +277,7 @@ export default function NotifyReg() {
                     </MenuItem>
                   ))}
                 </Select>
+                {errors.damageDegree && <FormHelperText error>{errors.damageDegree}</FormHelperText>}
               </FormControl>
             </Grid>
           )}
@@ -293,6 +289,8 @@ export default function NotifyReg() {
               label="Título"
               variant="outlined"
               placeholder="Título da notificação"
+              error={!!errors.title}
+              helperText={errors.title}
               value={formData.title}
               onChange={(e) => handleChange("title", e.target.value)}
             />
@@ -305,6 +303,8 @@ export default function NotifyReg() {
               multiline
               rows={4}
               value={formData.description}
+              error={!!errors.description}
+              helperText={errors.description}
               placeholder="Descreva o incidente com detalhes"
               onChange={(e) => handleChange("description", e.target.value)}
             />
@@ -317,6 +317,7 @@ export default function NotifyReg() {
               <Select
                 labelId="sectorNotifyLabel"
                 label="Setor notificante"
+                error={!!errors.sectorNotify}
                 value={formData.sectorNotify}
                 onChange={(e) => handleChange("sectorNotify", e.target.value)}
               >
@@ -326,6 +327,7 @@ export default function NotifyReg() {
                   </MenuItem>
                 ))}
               </Select>
+              {errors.sectorNotify && <FormHelperText error>{errors.sectorNotify}</FormHelperText>}
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -334,6 +336,7 @@ export default function NotifyReg() {
               <Select
                 labelId="sectorNotifiedLabel"
                 label="Setor notificado"
+                error={!!errors.sectorNotified}
                 value={formData.sectorNotified}
                 onChange={(e) => handleChange("sectorNotified", e.target.value)}
               >
@@ -343,6 +346,7 @@ export default function NotifyReg() {
                   </MenuItem>
                 ))}
               </Select>
+              {errors.sectorNotified && <FormHelperText error>{errors.sectorNotified}</FormHelperText>}
             </FormControl>
             {isSectorsEqual && (
               <FormHelperText error>Os setores notificante e notificado devem ser diferentes.</FormHelperText>
@@ -358,10 +362,11 @@ export default function NotifyReg() {
                 value={formData.involved}
                 onChange={(e) => handleChange("involved", e.target.value)}
               >
-                <FormControlLabel value="Sim" control={<Radio />} label="Sim" />
-                <FormControlLabel value="Não" control={<Radio />} label="Não" />
+                <FormControlLabel value="yes" control={<Radio />} label="Sim" />
+                <FormControlLabel value="no" control={<Radio />} label="Não" />
               </RadioGroup>
             </FormControl>
+            {errors.involved && <FormHelperText error>{errors.involved}</FormHelperText>}
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl component="fieldset">
@@ -371,10 +376,11 @@ export default function NotifyReg() {
                 value={formData.anonymous}
                 onChange={(e) => handleChange("anonymous", e.target.value)}
               >
-                <FormControlLabel value="Sim" control={<Radio />} label="Sim" />
-                <FormControlLabel value="Não" control={<Radio />} label="Não" />
+                <FormControlLabel value="yes" control={<Radio />} label="Sim" />
+                <FormControlLabel value="no" control={<Radio />} label="Não" />
               </RadioGroup>
             </FormControl>
+            {errors.anonymous && <FormHelperText error>{errors.anonymous}</FormHelperText>}
           </Grid>
 
 

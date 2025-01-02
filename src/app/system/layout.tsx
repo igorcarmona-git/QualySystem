@@ -31,53 +31,13 @@ import {
 import FolderIcon from '@mui/icons-material/Folder';
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import TaskIcon from '@mui/icons-material/Task';
+import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import { useRouter } from 'next/navigation';
 
 // Interface para descrever as propriedades do layout
 interface LayoutProps {
   children: React.ReactNode;
 }
-
-export const pages: Page[] = [
-  {
-    id: 1,
-    title: 'Notificações',
-    icon: <CircleNotificationsIcon />,
-    subPages: [
-      { id: 11, title: 'Registrar' },
-      { id: 12, title: 'Minhas notificações' },
-      { id: 13, title: 'Plano de Ação' },
-    ],
-  },
-  {
-    id: 2,
-    title: 'Tarefas',
-    icon: <TaskIcon />,
-    subPages: [
-      { id: 21, title: 'Controle de Atividades' },
-      { id: 22, title: 'Prazos' },
-    ],
-  },
-  {
-    id: 3,
-    title: 'Documentos',
-    icon: <FolderIcon />,
-    subPages: [
-      { id: 31, title: 'Upload' },
-      { id: 32, title: 'Consultar' },
-      { id: 33, title: 'Relatórios' },
-    ],
-  },
-  {
-    id: 4,
-    title: 'Indicadores',
-    icon: <SpaceDashboardOutlined />,
-    subPages: [
-      { id: 41, title: 'Gráficos' },
-      { id: 42, title: 'Relatórios' },
-    ],
-  },
-];  
 
 // Largura fixa do drawer
 const drawerWidth = 240;
@@ -143,6 +103,16 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
         { id: 42, title: 'Relatórios' },
       ],
     },
+    {
+      id: 5,
+      title: 'Cadastros',
+      icon: <AppRegistrationIcon />,
+      subPages: [
+        { id: 51, title: 'Diretorias' },
+        { id: 52, title: 'Setores' },
+        { id: 53, title: 'Tipos de Eventos' },
+      ]
+    },
   ];  
 
   const drawer = (
@@ -170,8 +140,15 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
                   {page.subPages.map((subPage) => (
                     <ListItem key={subPage.id} disablePadding>
                       <ListItemButton sx={{ pl: 4 }} onClick={() => {
+                        //ROTAS PARA LAYOUT SISTEMA DRAWER
                         if(subPage.id === 11){ //Notificações - Registrar
                           router.push('/system/notify/notifyreg');
+                        }
+                        if(subPage.id === 12){ //Notificações - Minhas notificações
+                          router.push('/system/notify/mynotifications');
+                        }
+                        if(subPage.id === 51){ //Cadastros - Diretorias
+                          router.push('/system/registers/directors');
                         }
                       }}>
                         <ListItemIcon>{subPage.icon}</ListItemIcon>
@@ -216,6 +193,8 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
           <IconButton color="inherit" onClick={handleMenuOpen}>
             <AccountCircleIcon fontSize='large' />
           </IconButton>
+
+          {/* Menu ao clicar no ícone do usuário */}
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
@@ -225,7 +204,7 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
               <span>Nome do Usuário</span>
             </div>
             <Divider variant="fullWidth" color='blue' />
-            <MenuItem>
+            <MenuItem onClick={() => router.push('/system/config')}>
               <SettingsIcon sx={{ mr: 1 }} />
               Configurações
             </MenuItem>
