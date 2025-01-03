@@ -1,4 +1,4 @@
-interface Page {
+export interface Page {
   id: number;
   title: string;
   icon?: React.ReactNode;

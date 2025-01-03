@@ -1,4 +1,4 @@
-type CentroDeCusto = {
+export interface CentroDeCusto{
     id: number;
     name: string;
     manager: string | null;
