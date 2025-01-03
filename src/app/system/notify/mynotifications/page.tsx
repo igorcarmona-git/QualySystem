@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -17,22 +17,52 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { usePagination } from '@/utils/common/pagination/usePagination';
-import CustomizedSteppers from '@/components/Stepper';
+import CustomizedSteppers from '@/_components/Stepper';
 import Link from 'next/link';
-import { Notification } from '@/types/notification';
-
-const notifications: Notification[] = Array.from({ length: 20 }, (_, index) => ({
-  id: index + 1,
-  title: `Título da notificação ${index + 1}`,
-  description: `Descrição da notificação ${index + 1}`,
-  status: ['Enviado à qualidade', 'Em análise', 'Concluído'],
-}));
+import axios from 'axios';
+import LoadingPage from '@/_components/errors/LoadingPage';
+import { ApiNotification, Notification } from '@/types/notifications';
 
 export default function NotificationsList() {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true); // Estado para controle de carregamento
   const itemsPerPage = 8;
 
+  // Função para buscar notificações da API
+  useEffect(() => {
+    async function fetchNotifications() {
+      try {
+        const response = await axios.get<ApiNotification[]>(
+          'https://jsonplaceholder.typicode.com/posts'
+        );
+
+        // Mapeia os dados retornados da API para o formato usado no componente
+        const formattedNotifications: Notification[] = response.data.map((item) => ({
+          id: item.id.toString(),
+          title: item.title,
+          description: item.body,
+          status: ['Enviado à qualidade', 'Em análise', 'Concluído'], // Exemplo de status fixo
+        }));
+
+        setNotifications(formattedNotifications);
+      } catch (error) {
+        console.error('Erro ao buscar notificações:', error);
+      } finally {
+        setLoading(false); // Finaliza o estado de carregamento
+      }
+    }
+
+    fetchNotifications();
+  }, []);
+
+  // Hook de paginação
   const { currentItems: paginatedNotifications, currentPage, totalPages, handlePageChange } =
-    usePagination(notifications, itemsPerPage);
+    usePagination<Notification>(notifications, itemsPerPage);
+
+  // Exibir indicador de carregamento enquanto os dados estão sendo buscados
+  if (loading) {
+    return <LoadingPage message="Carregando notificações..." />;
+  }
 
   return (
     <Container maxWidth="xl">
@@ -56,29 +86,36 @@ export default function NotificationsList() {
                 <Typography
                   variant="h6"
                   gutterBottom
-                  sx={{ backgroundColor: 'grey.100', px: 1, borderRadius: 1, fontSize: 16, fontWeight: 'bold', marginBottom: 2}}
+                  sx={{
+                    backgroundColor: 'grey.100',
+                    px: 1,
+                    borderRadius: 1,
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    marginBottom: 2,
+                  }}
                 >
-                  {notification.title}
+                  {notification.title.length > 30
+                    ? `${notification.title.substring(0, 30)}...`
+                    : notification.title}
                 </Typography>
-                <Typography 
-                    variant="body2" 
-                    color="text.secondary" 
-                    gutterBottom
-                >
-                  {notification.description}
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  {notification.description.length > 150
+                    ? `${notification.description.substring(0, 150)}...`
+                    : notification.description}
                 </Typography>
                 <Box mt={2}>
                   <CustomizedSteppers
                     steps={notification.status}
-                    activeStep={0} // Exemplo de passo ativo (ajustável dinamicamente)
+                    activeStep={0} // Exemplo de passo ativo
                   />
                 </Box>
               </CardContent>
               <CardActions sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Link href={`/system/notify/mynotifications/${notification.id}`}>
-                    <Button size='small' variant='contained' color='primary'>
-                        Detalhes
-                    </Button>
+                  <Button size="small" variant="contained" color="primary">
+                    Detalhes
+                  </Button>
                 </Link>
                 <Button size="small" variant="contained" color="primary" startIcon={<EditIcon />}>
                   EDITAR

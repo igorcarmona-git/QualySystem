@@ -1,3 +1,5 @@
+import { CentroDeCusto } from "@/types/cdc";
+
 export const SECTORS: CentroDeCusto[] = [
     { id: 1, name: "POSTO 1", manager: "Gestão Assistencial", numbercdc: 1, status: "A" },
     { id: 2, name: "POSTO 2", manager: "Gestão Assistencial", numbercdc: 2, status: "A" },

@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Box, Button, Container, Typography, Paper, CircularProgress } from '@mui/material';
+import { Box, Button, Container, Typography, Paper} from '@mui/material';
 import { Notification } from '@/types/notification';
+import Loading from '@/_components/errors/LoadingPage';
+import NotFound from '@/_components/errors/NotFound';
 
 export default function NotificationDetails() {
   const router = useRouter();
@@ -22,24 +24,15 @@ export default function NotificationDetails() {
 
   if (loading) {
     return (
-      <Container maxWidth="xl">
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-          <CircularProgress />
-        </Box>
-      </Container>
+      <Loading message='Carregando...' />
     );
   }
 
   if (!notification) {
     return (
-      <Container maxWidth="xl">
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          Notificação não encontrada.
-        </Typography>
-        <Button variant="contained" onClick={() => router.push('/system/notify/mynotifications')}>
-          Voltar
-        </Button>
-      </Container>
+      <NotFound message='Notificação não encontrada' 
+        onBack={() => router.push('/system/notify/mynotifications')} 
+      />
     );
   }
 
