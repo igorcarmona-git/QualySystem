@@ -18,42 +18,36 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { AGE_RANGE, DAMAGE_DEGREE, PATIENT_RACE, SECTORS, TYPE_NOTIFICATION } from "@/utils/constants";
-import { notifySchema } from "@/utils/validations/notifySchema";
+import { defaultValuesNotifySchema, notifySchema } from "@/utils/validations/notifySchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import * as z from 'zod';
 
 // Inferindo os tipos com base no schema Zod
 type NotifyForm = z.infer<typeof notifySchema>;
 
 export default function NotifyReg() {
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<NotifyForm>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<NotifyForm>({
     resolver: zodResolver(notifySchema),
-    defaultValues: {
-      dateOccurrence: new Date().toISOString().split('T')[0],
-      timeOccurrence: "00:00",
-      admissionDate: new Date().toISOString().split('T')[0],
-    },
-    mode: "onSubmit",
+    defaultValues: defaultValuesNotifySchema,
   });
 
-   // Observation of fields for conditional validations
-   const sectorNotify = watch("sectorNotify");
-   const sectorNotified = watch("sectorNotified");
-   const typeNotify = watch("typeNotify");
+  const sectorNotify = watch("sectorNotify");
+  const sectorNotified = watch("sectorNotified");
+  const typeNotify = watch("typeNotify");
 
-  // Validations
-  const isSectorsEqual: boolean = 
+  const isSectorsEqual: boolean =
     sectorNotify === sectorNotified && sectorNotify !== 0;
+
   const isNotifyNC: boolean = typeNotify === "Não conformidade";
 
-  // Function to send the form data
   const onSubmit = (data: NotifyForm) => {
-    try{
-      console.log("Dados validados:", data);
-    }catch(error){
-      console.error("Erro ao enviar os dados:", error);
-    }
+    console.log("Dados validados:", data);
   };
 
   return (
@@ -66,110 +60,139 @@ export default function NotifyReg() {
           boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
         }}
       >
-        {/* Title Page */}
         <Typography variant="h5" fontWeight="bold" gutterBottom marginBottom={4}>
           Registrar Notificação
         </Typography>
-        
-        {/* Form */}
+
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2}>
             {/* Date and Time of Occurrence */}
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Data da Ocorrência"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                {...register("dateOccurrence")}
-                error={!!errors.dateOccurrence}
-                helperText={errors.dateOccurrence?.message}
+              <Controller
+                name="dateOccurrence"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Data da Ocorrência"
+                    type="date"
+                    InputLabelProps={{ shrink: true }}
+                    error={!!errors.dateOccurrence}
+                    helperText={errors.dateOccurrence?.message}
+                  />
+                )}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Hora da Ocorrência"
-                type="time"
-                InputLabelProps={{ shrink: true }}
-                {...register("timeOccurrence")}
-                error={!!errors.timeOccurrence}
-                helperText={errors.timeOccurrence?.message}
+              <Controller
+                name="timeOccurrence"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Hora da Ocorrência"
+                    type="time"
+                    InputLabelProps={{ shrink: true }}
+                    error={!!errors.timeOccurrence}
+                    helperText={errors.timeOccurrence?.message}
+                  />
+                )}
               />
             </Grid>
 
             {/* Type of Notification */}
             <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel id="typeNotifyLabel">Tipo de Notificação</InputLabel>
-                <Select
-                  labelId="typeNotifyLabel"
-                  label="Tipo de Notificação"
-                  type="string"
-                  {...register("typeNotify")}
-                  error={!!errors.typeNotify}
-                >
-                  {TYPE_NOTIFICATION.map((type) => (
-                    <MenuItem key={type.id} value={type.name}>
-                      {type.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.typeNotify && <FormHelperText error>{errors.typeNotify.message}</FormHelperText>}
-              </FormControl>
+              <Controller
+                name="typeNotify"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="typeNotifyLabel">Tipo de Notificação</InputLabel>
+                    <Select
+                      {...field}
+                      labelId="typeNotifyLabel"
+                      label="Tipo de Notificação"
+                      error={!!errors.typeNotify}
+                    >
+                      {TYPE_NOTIFICATION.map((type) => (
+                        <MenuItem key={type.id} value={type.name}>
+                          {type.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.typeNotify && <FormHelperText>{errors.typeNotify.message}</FormHelperText>}
+                  </FormControl>
+                )}
+              />
             </Grid>
 
             {/* Patient Name */}
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Nome do Paciente"
-                variant="outlined"
-                type="string"
-                {...register("patientName")}
-                placeholder="Nome do paciente completo"
-                error={!!errors.patientName}
-                helperText={errors.patientName?.message}   
+              <Controller
+                name="patientName"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Nome do Paciente"
+                    variant="outlined"
+                    placeholder="Nome do paciente completo"
+                    error={!!errors.patientName}
+                    helperText={errors.patientName?.message}
+                  />
+                )}
               />
             </Grid>
 
             {/* Sex and Race Patient */}
             <Grid item xs={12} sm={3}>
-              <FormControl fullWidth>
-                <InputLabel id="patientSexLabel">Sexo</InputLabel>
-                <Select
-                  labelId="patientSexLabel"
-                  label="Sexo"
-                  type="string"
-                  {...register("patientSex")}
-                  error={!!errors.patientSex}
-                >
-                  <MenuItem value="M">Masculino</MenuItem>
-                  <MenuItem value="F">Feminino</MenuItem>
-                </Select>
-                {errors.patientSex && <FormHelperText error>{errors.patientSex.message}</FormHelperText>}
-              </FormControl>
+              <Controller
+                name="patientSex"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="patientSexLabel">Sexo</InputLabel>
+                    <Select
+                      {...field}
+                      labelId="patientSexLabel"
+                      label="Sexo"
+                      error={!!errors.patientSex}
+                    >
+                      <MenuItem value="M">Masculino</MenuItem>
+                      <MenuItem value="F">Feminino</MenuItem>
+                    </Select>
+                    {errors.patientSex && <FormHelperText>{errors.patientSex.message}</FormHelperText>}
+                  </FormControl>
+                )}
+              />
             </Grid>
             {!isNotifyNC && (
               <Grid item xs={12} sm={3}>
-                <FormControl fullWidth>
-                  <InputLabel id="patientRaceLabel">Raça/Cor</InputLabel>
-                  <Select
-                      fullWidth
-                      labelId="patientRaceLabel"
-                      label="Raça/Cor"
-                      type="string"
-                      error={!!errors.patientRace}
-                      {...register("patientRace")}
-                  >
-                  {PATIENT_RACE.map((race) => (
-                      <MenuItem key={race.id} value={race.name}>
-                          {race.name}
-                      </MenuItem>
-                  ))}
-                  </Select>
-                  {errors.patientRace && <FormHelperText error>{errors.patientRace.message}</FormHelperText>}
-                </FormControl>
+                <Controller
+                  name="patientRace"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth>
+                      <InputLabel id="patientRaceLabel">Raça/Cor</InputLabel>
+                      <Select
+                        {...field}
+                        labelId="patientRaceLabel"
+                        label="Raça/Cor"
+                        error={!!errors.patientRace}
+                      >
+                        {PATIENT_RACE.map((race) => (
+                          <MenuItem key={race.id} value={race.name}>
+                            {race.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      {errors.patientRace && <FormHelperText>{errors.patientRace.message}</FormHelperText>}
+                    </FormControl>
+                  )}
+                />
               </Grid>
             )}
 
@@ -177,209 +200,268 @@ export default function NotifyReg() {
             {!isNotifyNC && (
               <>
                 <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel id="agePatientLabel">Idade</InputLabel>
-                    <Select
-                      labelId="agePatientLabel"
-                      label="Idade"
-                      type="string"
-                      {...register("patientAge")}
-                      error={!!errors.patientAge}
-                      >
-                      {AGE_RANGE.map((age) => (
-                          <MenuItem key={age.id} value={age.name}>
+                  <Controller
+                    name="patientAge"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl fullWidth>
+                        <InputLabel id="agePatientLabel">Idade</InputLabel>
+                        <Select
+                          {...field}
+                          labelId="agePatientLabel"
+                          label="Idade"
+                          error={!!errors.patientAge}
+                        >
+                          {AGE_RANGE.map((age) => (
+                            <MenuItem key={age.id} value={age.name}>
                               {age.name}
-                          </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.patientAge && <FormHelperText error>{errors.patientAge.message}</FormHelperText>}
-                  </FormControl>
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {errors.patientAge && <FormHelperText>{errors.patientAge.message}</FormHelperText>}
+                      </FormControl>
+                    )}
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Data de Internação do Paciente"
-                    type="date"
-                    placeholder="DD/MM/AAAA"
-                    InputLabelProps={{ shrink: true }}
-                    {...register("admissionDate")}
-                    error={!!errors.admissionDate}
-                    helperText={errors.admissionDate?.message}
+                  <Controller
+                    name="admissionDate"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Data de Internação do Paciente"
+                        type="date"
+                        placeholder="DD/MM/AAAA"
+                        InputLabelProps={{ shrink: true }}
+                        error={!!errors.admissionDate}
+                        helperText={errors.admissionDate?.message}
+                      />
+                    )}
                   />
                 </Grid>
               </>
             )}
-
-            {/* Diagnostic and Patient Register */}
+            {/* Diagnostic */}
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Diagnóstico"
-                variant="outlined"
-                placeholder="Diagnóstico do paciente"
-                type="string"
-                {...register("diagnostic")}
-                error={!!errors.diagnostic}
-                helperText={errors.diagnostic?.message}
+              <Controller
+                name="diagnostic"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Diagnóstico"
+                    variant="outlined"
+                    placeholder="Diagnóstico do paciente"
+                    error={!!errors.diagnostic}
+                    helperText={errors.diagnostic?.message}
+                  />
+                )}
               />
             </Grid>
-            
+
             {/* Patient Register */}
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Registro do Paciente"
-                type="string"
-                variant="outlined"
-                placeholder="Digite apenas números do registro do paciente"
-                {...register("registerPatient")}
-                error={!!errors.registerPatient}
-                helperText={errors.registerPatient?.message}
+              <Controller
+                name="registerPatient"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Registro do Paciente"
+                    type="string"
+                    variant="outlined"
+                    placeholder="Digite apenas números do registro do paciente"
+                    error={!!errors.registerPatient}
+                    helperText={errors.registerPatient?.message}
+                  />
+                )}
               />
             </Grid>
 
             {/* Type of Event */}
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel id="eventTypeLabel">Tipo de Evento</InputLabel>
-                <Select
-                  labelId="eventTypeLabel"
-                  label="Tipo de Evento"
-                  type="string"
-                  {...register("eventType")}
-                  error={!!errors.eventType}
-                >
-                  <MenuItem value="Evento 1">Evento 1</MenuItem>
-                  <MenuItem value="Evento 2">Evento 2</MenuItem>
-                </Select>
-                {errors.eventType && <FormHelperText error>{errors.eventType.message}</FormHelperText>}
-              </FormControl>
+              <Controller
+                name="eventType"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="eventTypeLabel">Tipo de Evento</InputLabel>
+                    <Select
+                      {...field}
+                      labelId="eventTypeLabel"
+                      label="Tipo de Evento"
+                      error={!!errors.eventType}
+                    >
+                      <MenuItem value="Evento 1">Evento 1</MenuItem>
+                      <MenuItem value="Evento 2">Evento 2</MenuItem>
+                    </Select>
+                    {errors.eventType && <FormHelperText>{errors.eventType.message}</FormHelperText>}
+                  </FormControl>
+                )}
+              />
             </Grid>
 
             {/* Damage Degree */}
             {!isNotifyNC && (
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel id="damageDegreeLabel">Grau do Dano</InputLabel>
-                  <Select
-                    labelId="damageDegreeLabel"
-                    label="Grau do Dano"
-                    type="string"
-                    {...register("damageDegree")}
-                    error={!!errors.damageDegree}
-                  >
-                    {DAMAGE_DEGREE.map((degree) => (
-                      <MenuItem key={degree.id} value={degree.name}>
-                        {degree.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {errors.damageDegree && <FormHelperText error>{errors.damageDegree.message}</FormHelperText>}
-                </FormControl>
+                <Controller
+                  name="damageDegree"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth>
+                      <InputLabel id="damageDegreeLabel">Grau do Dano</InputLabel>
+                      <Select
+                        {...field}
+                        labelId="damageDegreeLabel"
+                        label="Grau do Dano"
+                        error={!!errors.damageDegree}
+                      >
+                        {DAMAGE_DEGREE.map((degree) => (
+                          <MenuItem key={degree.id} value={degree.name}>
+                            {degree.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      {errors.damageDegree && <FormHelperText>{errors.damageDegree.message}</FormHelperText>}
+                    </FormControl>
+                  )}
+                />
               </Grid>
             )}
 
-            {/* Title and Description */}
+            {/* Title */}
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Título"
-                variant="outlined"
-                type="string"
-                placeholder="Título da notificação"
-                {...register("title")}
-                error={!!errors.title}
-                helperText={errors.title?.message}
+              <Controller
+                name="title"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Título"
+                    variant="outlined"
+                    placeholder="Título da notificação"
+                    error={!!errors.title}
+                    helperText={errors.title?.message}
+                  />
+                )}
               />
             </Grid>
+
+            {/* Description */}
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Descrição"
-                variant="outlined"
-                type="string"
-                multiline
-                rows={4}
-                placeholder="Descreva o incidente com detalhes"
-                {...register("description")}
-                error={!!errors.description}
-                helperText={errors.description?.message}
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Descrição"
+                    variant="outlined"
+                    multiline
+                    rows={4}
+                    placeholder="Descreva o incidente com detalhes"
+                    error={!!errors.description}
+                    helperText={errors.description?.message}
+                  />
+                )}
               />
             </Grid>
 
             {/* Sectors Notify and Notified */}
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel id="sectorNotifyLabel">Setor notificante</InputLabel>
-                <Select
-                  labelId="sectorNotifyLabel"
-                  label="Setor notificante"
-                  type="number"
-                  {...register("sectorNotify")}
-                  error={!!errors.sectorNotify}
-                >
-                  {SECTORS.map((sector) => (
-                    <MenuItem key={sector.numbercdc} value={sector.numbercdc}>
-                      {sector.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.sectorNotify && <FormHelperText error>{errors.sectorNotify.message}</FormHelperText>}
-              </FormControl>
+              <Controller
+                name="sectorNotify"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="sectorNotifyLabel">Setor notificante</InputLabel>
+                    <Select
+                      {...field}
+                      labelId="sectorNotifyLabel"
+                      label="Setor notificante"
+                      error={!!errors.sectorNotify}
+                    >
+                      {SECTORS.map((sector) => (
+                        <MenuItem key={sector.numbercdc} value={sector.numbercdc}>
+                          {sector.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.sectorNotify && <FormHelperText>{errors.sectorNotify.message}</FormHelperText>}
+                  </FormControl>
+                )}
+              />
             </Grid>
+
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel id="sectorNotifiedLabel">Setor notificado</InputLabel>
-                <Select
-                  labelId="sectorNotifiedLabel"
-                  label="Setor notificado"
-                  type="number"
-                  {...register("sectorNotified")}
-                  error={!!errors.sectorNotified}
-                >
-                  {SECTORS.map((sector) => (
-                    <MenuItem key={sector.numbercdc} value={sector.numbercdc}>
-                      {sector.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.sectorNotified && <FormHelperText error>{errors.sectorNotified.message}</FormHelperText>}
-              </FormControl>
+              <Controller
+                name="sectorNotified"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="sectorNotifiedLabel">Setor notificado</InputLabel>
+                    <Select
+                      {...field}
+                      labelId="sectorNotifiedLabel"
+                      label="Setor notificado"
+                      error={!!errors.sectorNotified}
+                    >
+                      {SECTORS.map((sector) => (
+                        <MenuItem key={sector.numbercdc} value={sector.numbercdc}>
+                          {sector.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.sectorNotified && <FormHelperText>{errors.sectorNotified.message}</FormHelperText>}
+                  </FormControl>
+                )}
+              />
               {isSectorsEqual && (
-                <FormHelperText error>Os setores notificante e notificado devem ser diferentes.</FormHelperText>
+                <FormHelperText error>
+                  Os setores notificante e notificado devem ser diferentes.
+                </FormHelperText>
               )}
             </Grid>
 
-            {/* Involved and Anonymous */}
+            {/* Involved */}
             <Grid item xs={12} sm={6}>
-              <FormControl component="fieldset">
-                <FormLabel component="legend">Estou Envolvido no Incidente</FormLabel>
-                <RadioGroup
-                  row
-                  defaultValue={"no"}
-                  {...register("involved")}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Sim" />
-                  <FormControlLabel value="no" control={<Radio />} label="Não" />
-                </RadioGroup>
-              </FormControl>
-              {errors.involved && <FormHelperText error>{errors.involved.message}</FormHelperText>}
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl component="fieldset">
-                <FormLabel component="legend">Desejo Manter Anonimato</FormLabel>
-                <RadioGroup
-                  row
-                  defaultValue={"no"}
-                  {...register("anonymous")}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Sim" />
-                  <FormControlLabel value="no" control={<Radio />} label="Não" />
-                </RadioGroup>
-              </FormControl>
-              {errors.anonymous && <FormHelperText error>{errors.anonymous.message}</FormHelperText>}
+              <Controller
+                name="involved"
+                control={control}
+                render={({ field }) => (
+                  <FormControl component="fieldset">
+                    <FormLabel component="legend">Estou Envolvido no Incidente</FormLabel>
+                    <RadioGroup row {...field}>
+                      <FormControlLabel value="yes" control={<Radio />} label="Sim" />
+                      <FormControlLabel value="no" control={<Radio />} label="Não" />
+                    </RadioGroup>
+                  </FormControl>
+                )}
+              />
             </Grid>
 
+            {/* Anonymous */}
+            <Grid item xs={12} sm={6}>
+              <Controller
+                name="anonymous"
+                control={control}
+                render={({ field }) => (
+                  <FormControl component="fieldset">
+                    <FormLabel component="legend">Desejo Manter Anonimato</FormLabel>
+                    <RadioGroup row {...field}>
+                      <FormControlLabel value="yes" control={<Radio />} label="Sim" />
+                      <FormControlLabel value="no" control={<Radio />} label="Não" />
+                    </RadioGroup>
+                  </FormControl>
+                )}
+              />
+            </Grid>
 
             {/* Submit Button */}
             <Grid item xs={12}>
