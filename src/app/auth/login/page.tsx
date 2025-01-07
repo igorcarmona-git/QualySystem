@@ -48,8 +48,8 @@ const LoginPage: React.FC = () => {
 
         <TextField
           fullWidth
-          label="Usuário SPDATA"
-          placeholder="Entre com seu usuário do SPDATA"
+          label="Usuário"
+          placeholder="Entre com seu usuário"
           variant="outlined"
           sx={{ mb: 3 }}
         />

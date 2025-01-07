@@ -17,11 +17,13 @@ import {
   FormControlLabel,
   FormHelperText,
 } from "@mui/material";
-import { AGE_RANGE, DAMAGE_DEGREE, PATIENT_RACE, SECTORS, TYPE_NOTIFICATION } from "@/utils/constants";
+import { DAMAGE_DEGREE, PATIENT_RACE, SECTORS, STATUS_NOTIFICATION, TYPE_NOTIFICATION } from "@/utils/constants";
 import { defaultValuesNotifySchema, notifySchema } from "@/utils/validations/notifySchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import * as z from 'zod';
+import axios from "axios";
+import { apiResponse } from "@/types/apiResponse";
 
 // Inferindo os tipos com base no schema Zod
 type NotifyForm = z.infer<typeof notifySchema>;
@@ -32,6 +34,7 @@ export default function NotifyReg() {
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm<NotifyForm>({
     resolver: zodResolver(notifySchema),
     defaultValues: defaultValuesNotifySchema,
@@ -44,10 +47,43 @@ export default function NotifyReg() {
   const isSectorsEqual: boolean =
     sectorNotify === sectorNotified && sectorNotify !== 0;
 
-  const isNotifyNC: boolean = typeNotify === "Não conformidade";
+  const isNotifyNC: boolean = typeNotify === 2; //Não conformidade
 
-  const onSubmit = (data: NotifyForm) => {
-    console.log("Dados validados:", data);
+  const onSubmit = async (submitData: NotifyForm) => {
+    const mappedData = {
+      usuario_responsavel: 1,
+      dt_ocorrencia: submitData.dateOccurrence,
+      hr_ocorrencia: submitData.timeOccurrence,
+      nomePaciente: submitData.patientName,
+      id_evento: submitData.eventType,
+      sexo: submitData.patientSex,
+      raca_cor: submitData.patientRace || null,
+      idade: submitData.patientAge || null,
+      dt_internacao: submitData.admissionDate || null,
+      status: submitData.status,
+      id_tarefa: submitData.id_task || null,
+      id_setor_notificante: submitData.sectorNotify,
+      id_setor_notificado: submitData.sectorNotified,
+      diagnostico: submitData.diagnostic, //falta
+      registro_paciente: submitData.registerPatient,
+      grau_dano: submitData.damageDegree || null,
+      titulo: submitData.title,
+      descricao: submitData.description,
+      envolvido: submitData.involved,
+      anonimo: submitData.anonymous,
+    };
+    console.log(mappedData);
+    try{
+      const { data } = await axios.post("/createNotificacao/", mappedData);
+      const res: apiResponse = data;
+
+      if(res?.status === 200){
+        alert(`${res?.message}`);
+      }
+
+    }catch(error){
+      console.error(error);
+    }
   };
 
   return (
@@ -67,7 +103,7 @@ export default function NotifyReg() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2}>
             {/* Date and Time of Occurrence */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6} sm={3}>
               <Controller
                 name="dateOccurrence"
                 control={control}
@@ -84,7 +120,7 @@ export default function NotifyReg() {
                 )}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6} sm={3}>
               <Controller
                 name="timeOccurrence"
                 control={control}
@@ -103,7 +139,7 @@ export default function NotifyReg() {
             </Grid>
 
             {/* Type of Notification */}
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6}>
               <Controller
                 name="typeNotify"
                 control={control}
@@ -117,7 +153,7 @@ export default function NotifyReg() {
                       error={!!errors.typeNotify}
                     >
                       {TYPE_NOTIFICATION.map((type) => (
-                        <MenuItem key={type.id} value={type.name}>
+                        <MenuItem key={type.id} value={type.id}>
                           {type.name}
                         </MenuItem>
                       ))}
@@ -148,7 +184,7 @@ export default function NotifyReg() {
             </Grid>
 
             {/* Sex and Race Patient */}
-            <Grid item xs={12} sm={3}>
+            <Grid item xs={6} sm={3}>
               <Controller
                 name="patientSex"
                 control={control}
@@ -170,7 +206,7 @@ export default function NotifyReg() {
               />
             </Grid>
             {!isNotifyNC && (
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={6} sm={3}>
                 <Controller
                   name="patientRace"
                   control={control}
@@ -199,31 +235,27 @@ export default function NotifyReg() {
             {/* Age and Admission Date */}
             {!isNotifyNC && (
               <>
-                <Grid item xs={12} sm={6}>
+                {/* Patient Age */}
+                <Grid item xs={6} sm={3}>
                   <Controller
                     name="patientAge"
                     control={control}
                     render={({ field }) => (
-                      <FormControl fullWidth>
-                        <InputLabel id="agePatientLabel">Idade</InputLabel>
-                        <Select
-                          {...field}
-                          labelId="agePatientLabel"
-                          label="Idade"
-                          error={!!errors.patientAge}
-                        >
-                          {AGE_RANGE.map((age) => (
-                            <MenuItem key={age.id} value={age.name}>
-                              {age.name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        {errors.patientAge && <FormHelperText>{errors.patientAge.message}</FormHelperText>}
-                      </FormControl>
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Idade do Paciente"
+                        type="string"
+                        variant="outlined"
+                        placeholder="Idade do paciente"
+                        onClick={() => setValue("patientAge", "")}
+                        error={!!errors.patientAge}
+                        helperText={errors.patientAge?.message}
+                      />
                     )}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={6} sm={3}>
                   <Controller
                     name="admissionDate"
                     control={control}
@@ -231,7 +263,7 @@ export default function NotifyReg() {
                       <TextField
                         {...field}
                         fullWidth
-                        label="Data de Internação do Paciente"
+                        label="Data de Internação"
                         type="date"
                         placeholder="DD/MM/AAAA"
                         InputLabelProps={{ shrink: true }}
@@ -244,7 +276,7 @@ export default function NotifyReg() {
               </>
             )}
             {/* Diagnostic */}
-            <Grid item xs={12}>
+            <Grid item xs={6}>
               <Controller
                 name="diagnostic"
                 control={control}
@@ -263,7 +295,7 @@ export default function NotifyReg() {
             </Grid>
 
             {/* Patient Register */}
-            <Grid item xs={12}>
+            <Grid item xs={6}>
               <Controller
                 name="registerPatient"
                 control={control}
@@ -283,7 +315,7 @@ export default function NotifyReg() {
             </Grid>
 
             {/* Type of Event */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6} sm={3}>
               <Controller
                 name="eventType"
                 control={control}
@@ -296,8 +328,8 @@ export default function NotifyReg() {
                       label="Tipo de Evento"
                       error={!!errors.eventType}
                     >
-                      <MenuItem value="Evento 1">Evento 1</MenuItem>
-                      <MenuItem value="Evento 2">Evento 2</MenuItem>
+                      <MenuItem value={1}>Evento 1</MenuItem>
+                      <MenuItem value={2}>Evento 2</MenuItem>
                     </Select>
                     {errors.eventType && <FormHelperText>{errors.eventType.message}</FormHelperText>}
                   </FormControl>
@@ -307,7 +339,7 @@ export default function NotifyReg() {
 
             {/* Damage Degree */}
             {!isNotifyNC && (
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={6} sm={3}>
                 <Controller
                   name="damageDegree"
                   control={control}
@@ -332,7 +364,6 @@ export default function NotifyReg() {
                 />
               </Grid>
             )}
-
             {/* Title */}
             <Grid item xs={12}>
               <Controller
@@ -438,8 +469,8 @@ export default function NotifyReg() {
                   <FormControl component="fieldset">
                     <FormLabel component="legend">Estou Envolvido no Incidente</FormLabel>
                     <RadioGroup row {...field}>
-                      <FormControlLabel value="yes" control={<Radio />} label="Sim" />
-                      <FormControlLabel value="no" control={<Radio />} label="Não" />
+                      <FormControlLabel value="t" control={<Radio />} label="Sim" />
+                      <FormControlLabel value="f" control={<Radio />} label="Não" />
                     </RadioGroup>
                   </FormControl>
                 )}
@@ -455,8 +486,8 @@ export default function NotifyReg() {
                   <FormControl component="fieldset">
                     <FormLabel component="legend">Desejo Manter Anonimato</FormLabel>
                     <RadioGroup row {...field}>
-                      <FormControlLabel value="yes" control={<Radio />} label="Sim" />
-                      <FormControlLabel value="no" control={<Radio />} label="Não" />
+                      <FormControlLabel value="t" control={<Radio />} label="Sim" />
+                      <FormControlLabel value="f" control={<Radio />} label="Não" />
                     </RadioGroup>
                   </FormControl>
                 )}
@@ -471,6 +502,7 @@ export default function NotifyReg() {
                 color="primary"
                 sx={{ mt: 3, mb: 2 }}
                 type="submit"
+                onClick={() => setValue("status", STATUS_NOTIFICATION[0].id)} //Set status as sent to quality
               >
                 Enviar à Qualidade
               </Button>

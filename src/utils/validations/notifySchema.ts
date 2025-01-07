@@ -10,28 +10,40 @@ export const notifySchema = z.object({
       { message: "A data de ocorrência nao pode ser maior que a data atual." }
     ),
   timeOccurrence: z.string().min(1, "A hora de ocorrência é obrigatória."),
-  typeNotify: z.string().min(1, "O tipo de notificação é obrigatório."),
+  typeNotify: z.number().min(1, "O tipo de notificação é obrigatório."),
   patientName: z.string().min(1, "O nome do paciente é obrigatório."),
   patientSex: z.string().min(1, "O sexo do paciente é obrigatório."),
   patientRace: z.string().optional(),
-  patientAge: z.string().optional(),
+  patientAge: z.string()
+    .regex(/^[0-9]+$/, "O campo de idade do paciente deve ser um número.")
+    .max(3, "A idade do paciente não pode ser maior que 3 dígitos.")
+    .refine((age) => !age || parseInt(age) <= 120, {
+      message: "A idade do paciente não pode ser maior que 120 anos.",
+    })
+    .optional(),
   admissionDate: z
     .string()
-    .min(1, "A data de internação é obrigatória.")
     .refine(
       (value) => value <= today,
       { message: "A data de internação não pode ser maior que a data atual." }
-    ),
+    )
+    .optional(),
   diagnostic: z.string().min(1, "O diagnóstico é obrigatório."),
-  registerPatient: z.string().regex(/^[0-9]+$/, "O registro do paciente deve ser um número.").default("0"),
-  eventType: z.string().min(1, "O tipo de evento é obrigatório."),
+  registerPatient: z.string()
+    .regex(/^[0-9]+$/, "O registro do paciente deve ser um número.")
+    .min(1, "O registro do paciente é obrigatório."
+    ),
+  eventType: z.number().min(1, "O tipo de evento é obrigatório."),
   damageDegree: z.string().optional(),
   title: z.string().min(1, "O título é obrigatório."),
   description: z.string().min(1, "A descrição é obrigatória."),
   sectorNotify: z.number().min(1, "O setor notificador é obrigatório."),
   sectorNotified: z.number().min(1, "O setor notificado é obrigatório."),
-  involved: z.string().min(1, "O campo de envolvimento é obrigatório."),
-  anonymous: z.string().min(1, "O campo de anonimato é obrigatório."),
+  involved: z.boolean(),
+  anonymous: z.boolean(),
+  status: z.number(),
+  id_task: z.number().optional(),
+  id_user: z.number().optional(),
 });
 
 export type NotifySchema = z.infer<typeof notifySchema>;
@@ -39,20 +51,23 @@ export type NotifySchema = z.infer<typeof notifySchema>;
 export const defaultValuesNotifySchema: NotifySchema = {
   dateOccurrence: today,
   timeOccurrence: "00:00",
-  typeNotify: "",
+  typeNotify: 0,
   patientName: "",
   patientSex: "",
-  patientRace: "",
-  patientAge: "",
-  admissionDate: today,
+  patientRace: "", //optional
+  patientAge: "", //optional
+  admissionDate: today, //optional
   diagnostic: "",
-  registerPatient: "0",
-  eventType: "",
+  registerPatient: "",
+  eventType: 0,
   damageDegree: "",
   title: "",
   description: "",
   sectorNotify: 0,
   sectorNotified: 0,
-  involved: "no",
-  anonymous: "no",  
+  involved: false,
+  anonymous: false,
+  status: 1, //Initial state sent to quality control
+  id_task: 0,
+  id_user: 0,
 };

@@ -79,17 +79,9 @@ export const DAMAGE_DEGREE = [
     {id: 4, name: "Óbito"},
 ]
 
-export const AGE_RANGE = [
-    {id: 1, name: "menos de 28 dias"},
-    {id: 2, name: "de 29 dias a 1 ano"},
-    {id: 3, name: "de 2 a 4 anos"},
-    {id: 4, name: "de 12 a 17 anos"},
-    {id: 5, name: "de 18 a 25 anos"},
-    {id: 6, name: "de 26 a 35 anos"},
-    {id: 7, name: "de 36 a 45 anos"},
-    {id: 8, name: "de 46 a 55 anos"},
-    {id: 9, name: "de 56 a 65 anos"},
-    {id: 10, name: "de 66 a 76 anos"},
-    {id: 11, name: "de 76 a 85 anos"},
-    {id: 12, name: "mais de 85 anos"},
+export const STATUS_NOTIFICATION = [
+    {id: 1, name: "Enviado"}, //Foi enviado a qualidade
+    {id: 2, name: "Em analise"}, //Foi pego pela qualidade para analisar
+    {id: 3, name: "Revisar"}, //Qualidade analisou e precisa arrumar
+    {id: 4, name: "Concluido"}, //Aprova e gera plano de ação
 ]
