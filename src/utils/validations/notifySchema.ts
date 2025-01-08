@@ -1,3 +1,4 @@
+import { parse } from "path";
 import { z } from "zod";
 
 // Obtém a data atual no formato "YYYY-MM-DD"
@@ -15,7 +16,7 @@ export const notifySchema = z.object({
   patientSex: z.string().min(1, "O sexo do paciente é obrigatório."),
   patientRace: z.string().optional(),
   patientAge: z.string()
-    .regex(/^[0-9]+$/, "O campo de idade do paciente deve ser um número.")
+    .regex(/^\d+$/, "A idade do paciente deve ser um número.")
     .max(3, "A idade do paciente não pode ser maior que 3 dígitos.")
     .refine((age) => !age || parseInt(age) <= 120, {
       message: "A idade do paciente não pode ser maior que 120 anos.",
@@ -30,7 +31,7 @@ export const notifySchema = z.object({
     .optional(),
   diagnostic: z.string().min(1, "O diagnóstico é obrigatório."),
   registerPatient: z.string()
-    .regex(/^[0-9]+$/, "O registro do paciente deve ser um número.")
+    .regex(/^\d+$/, "O registro do paciente deve ser um número.")
     .min(1, "O registro do paciente é obrigatório."
     ),
   eventType: z.number().min(1, "O tipo de evento é obrigatório."),
@@ -39,8 +40,12 @@ export const notifySchema = z.object({
   description: z.string().min(1, "A descrição é obrigatória."),
   sectorNotify: z.number().min(1, "O setor notificador é obrigatório."),
   sectorNotified: z.number().min(1, "O setor notificado é obrigatório."),
-  involved: z.boolean(),
-  anonymous: z.boolean(),
+  involved: z.string()
+    //The value in form is a string "yes" or "no"
+    .transform((value) => value === "yes"),
+  anonymous: z.string()
+    //The value in form is a string "yes" or "no"
+    .transform((value) => value === "yes"),
   status: z.number(),
   id_task: z.number().optional(),
   id_user: z.number().optional(),

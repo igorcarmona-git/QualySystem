@@ -22,20 +22,23 @@ import { defaultValuesNotifySchema, notifySchema } from "@/utils/validations/not
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import * as z from 'zod';
-import axios from "axios";
-import { apiResponse } from "@/types/apiResponse";
+import { api } from "@/utils/api";
+import AlertModal from "@/_components/AlertModal";
+import { useState } from "react";
+import { AlertModalProps } from "@/types/modals/AlertModalProps";
 
 // Inferindo os tipos com base no schema Zod
 type NotifyForm = z.infer<typeof notifySchema>;
 
 export default function NotifyReg() {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    setValue,
-  } = useForm<NotifyForm>({
+  const [modalState, setModalState] = useState<AlertModalProps>({ 
+    open: false, 
+    success: false,
+    message: "", 
+    redirectPath: "", 
+    onClose: () => setModalState((prev) => ({ ...prev, open: false })),
+  });
+  const { control, handleSubmit, formState: { errors }, watch, setValue, reset} = useForm<NotifyForm>({
     resolver: zodResolver(notifySchema),
     defaultValues: defaultValuesNotifySchema,
   });
@@ -49,40 +52,54 @@ export default function NotifyReg() {
 
   const isNotifyNC: boolean = typeNotify === 2; //Não conformidade
 
-  const onSubmit = async (submitData: NotifyForm) => {
+  const onSubmit = async (submitData: any) => {
     const mappedData = {
-      usuario_responsavel: 1,
+      usuario_responsavel: 1, 
       dt_ocorrencia: submitData.dateOccurrence,
       hr_ocorrencia: submitData.timeOccurrence,
       nomePaciente: submitData.patientName,
       id_evento: submitData.eventType,
       sexo: submitData.patientSex,
       raca_cor: submitData.patientRace || null,
-      idade: submitData.patientAge || null,
+      idade: parseInt(submitData.patientAge) || null,
       dt_internacao: submitData.admissionDate || null,
       status: submitData.status,
       id_tarefa: submitData.id_task || null,
       id_setor_notificante: submitData.sectorNotify,
       id_setor_notificado: submitData.sectorNotified,
-      diagnostico: submitData.diagnostic, //falta
-      registro_paciente: submitData.registerPatient,
+      diagnostico: submitData.diagnostic,
+      registro: parseInt(submitData.registerPatient),
       grau_dano: submitData.damageDegree || null,
       titulo: submitData.title,
       descricao: submitData.description,
-      envolvido: submitData.involved,
-      anonimo: submitData.anonymous,
+      envolvimento: submitData.involved, 
+      anonimato: submitData.anonymous, 
     };
-    console.log(mappedData);
+    
     try{
-      const { data } = await axios.post("/createNotificacao/", mappedData);
-      const res: apiResponse = data;
+      const response = await api.post("createNotificacao/", mappedData);
+      const { status, data: message } = response; 
 
-      if(res?.status === 200){
-        alert(`${res?.message}`);
+      if(status === 200){
+        setModalState({
+          open: true,
+          success: true,
+          message: `${message}`,
+          redirectPath: "",
+          onClose: () => setModalState((prev) => ({ ...prev, open: false })),
+        });
+
+        //Clean the fields of the form later sent data
+        reset(defaultValuesNotifySchema);
       }
-
     }catch(error){
-      console.error(error);
+      setModalState({
+        open: true,
+        success: false,
+        message: `${error}`,
+        redirectPath: "",
+        onClose: () => setModalState((prev) => ({ ...prev, open: false })),
+      });
     }
   };
 
@@ -248,7 +265,6 @@ export default function NotifyReg() {
                         type="string"
                         variant="outlined"
                         placeholder="Idade do paciente"
-                        onClick={() => setValue("patientAge", "")}
                         error={!!errors.patientAge}
                         helperText={errors.patientAge?.message}
                       />
@@ -467,10 +483,10 @@ export default function NotifyReg() {
                 control={control}
                 render={({ field }) => (
                   <FormControl component="fieldset">
-                    <FormLabel component="legend">Estou Envolvido no Incidente</FormLabel>
+                    <FormLabel component="legend">Desejo Manter Anonimato</FormLabel>
                     <RadioGroup row {...field}>
-                      <FormControlLabel value="t" control={<Radio />} label="Sim" />
-                      <FormControlLabel value="f" control={<Radio />} label="Não" />
+                      <FormControlLabel value="yes" control={<Radio />} label="Sim" />
+                      <FormControlLabel value="no" control={<Radio />} label="Não" />
                     </RadioGroup>
                   </FormControl>
                 )}
@@ -486,13 +502,14 @@ export default function NotifyReg() {
                   <FormControl component="fieldset">
                     <FormLabel component="legend">Desejo Manter Anonimato</FormLabel>
                     <RadioGroup row {...field}>
-                      <FormControlLabel value="t" control={<Radio />} label="Sim" />
-                      <FormControlLabel value="f" control={<Radio />} label="Não" />
+                      <FormControlLabel value="yes" control={<Radio />} label="Sim" />
+                      <FormControlLabel value="no" control={<Radio />} label="Não" />
                     </RadioGroup>
                   </FormControl>
                 )}
               />
             </Grid>
+
 
             {/* Submit Button */}
             <Grid item xs={12}>
@@ -502,7 +519,7 @@ export default function NotifyReg() {
                 color="primary"
                 sx={{ mt: 3, mb: 2 }}
                 type="submit"
-                onClick={() => setValue("status", STATUS_NOTIFICATION[0].id)} //Set status as sent to quality
+                onClick={() => setValue("status", STATUS_NOTIFICATION[0].id)}
               >
                 Enviar à Qualidade
               </Button>
@@ -510,6 +527,15 @@ export default function NotifyReg() {
           </Grid>
         </form>
       </Box>
+
+      {/* Alert modal for success or error messages */}
+      <AlertModal
+        open={modalState.open}
+        success={modalState.success}
+        message={modalState.message}
+        redirectPath={modalState.redirectPath}
+        onClose={modalState.onClose}
+      />
     </Container>
   );
 }

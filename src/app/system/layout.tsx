@@ -33,6 +33,7 @@ import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import TaskIcon from '@mui/icons-material/Task';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import { useRouter } from 'next/navigation';
+import { Page } from '@/types/pages';
 
 // Interface para descrever as propriedades do layout
 interface LayoutProps {
