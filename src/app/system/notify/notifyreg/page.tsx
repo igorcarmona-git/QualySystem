@@ -76,6 +76,7 @@ export default function NotifyReg() {
       anonimato: submitData.anonymous, 
     };
     
+    //Sent data to API using the mapped data
     try{
       const response = await api.post("createNotificacao/", mappedData);
       const { status, data: message } = response; 
@@ -483,7 +484,7 @@ export default function NotifyReg() {
                 control={control}
                 render={({ field }) => (
                   <FormControl component="fieldset">
-                    <FormLabel component="legend">Desejo Manter Anonimato</FormLabel>
+                    <FormLabel component="legend">Estou envolvido no incidente?</FormLabel>
                     <RadioGroup row {...field}>
                       <FormControlLabel value="yes" control={<Radio />} label="Sim" />
                       <FormControlLabel value="no" control={<Radio />} label="Não" />
@@ -500,7 +501,7 @@ export default function NotifyReg() {
                 control={control}
                 render={({ field }) => (
                   <FormControl component="fieldset">
-                    <FormLabel component="legend">Desejo Manter Anonimato</FormLabel>
+                    <FormLabel component="legend">Desejo manter anonimato?</FormLabel>
                     <RadioGroup row {...field}>
                       <FormControlLabel value="yes" control={<Radio />} label="Sim" />
                       <FormControlLabel value="no" control={<Radio />} label="Não" />

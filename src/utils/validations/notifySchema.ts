@@ -15,13 +15,13 @@ export const notifySchema = z.object({
   patientName: z.string().min(1, "O nome do paciente é obrigatório."),
   patientSex: z.string().min(1, "O sexo do paciente é obrigatório."),
   patientRace: z.string().optional(),
-  patientAge: z.string()
-    .regex(/^\d+$/, "A idade do paciente deve ser um número.")
-    .max(3, "A idade do paciente não pode ser maior que 3 dígitos.")
+  patientAge: z.string().optional()
+    .refine((age) => !age || /^\d+$/.test(age), {
+      message: "A idade do paciente deve ser um número.",
+    })
     .refine((age) => !age || parseInt(age) <= 120, {
       message: "A idade do paciente não pode ser maior que 120 anos.",
-    })
-    .optional(),
+    }),
   admissionDate: z
     .string()
     .refine(
