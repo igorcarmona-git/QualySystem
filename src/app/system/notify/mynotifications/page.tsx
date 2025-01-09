@@ -21,7 +21,7 @@ import CustomizedSteppers from '@/_components/Stepper';
 import Link from 'next/link';
 import axios from 'axios';
 import LoadingPage from '@/_components/errors/LoadingPage';
-import { ApiNotification, Notification } from '@/types/notifications';
+import { Notification } from '@/types/notifications';
 
 export default function NotificationsList() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -32,12 +32,12 @@ export default function NotificationsList() {
   useEffect(() => {
     async function fetchNotifications() {
       try {
-        const response = await axios.get<ApiNotification[]>(
+        const response = await axios.get(
           'https://jsonplaceholder.typicode.com/posts'
         );
 
         // Mapeia os dados retornados da API para o formato usado no componente
-        const formattedNotifications: Notification[] = response.data.map((item) => ({
+        const formattedNotifications = response.data.map((item) => ({
           id: item.id.toString(),
           title: item.title,
           description: item.body,

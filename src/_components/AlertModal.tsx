@@ -1,23 +1,33 @@
 import React from "react";
-import { Modal, Box, Typography, Button } from "@mui/material";
+import { Modal, Typography, Backdrop, Box } from "@mui/material";
 import { useRouter } from "next/navigation";
-import Lottie from "lottie-react";
-import successAnimation from ;
 import { AlertModalProps } from "@/types/modals/AlertModalProps";
+import SuccessAnimation from "./animations/statusAnimation";
 
 const AlertModal: React.FC<AlertModalProps> = ({ open, onClose, success, message, redirectPath }) => {
   const router = useRouter();
 
-  const handleClose = () => {
-    onClose();
+  /**
+   * Called when the animation completes and redirects to the specified path if there is one
+   * @returns void
+   * @onClose Function to close the modal
+   */
+  const handleAnimationComplete = () => {
     if (success && redirectPath) {
-      router.push(redirectPath);
+      router.push(redirectPath); 
     }
+    if(!success){
+      setTimeout(() => {
+        onClose();
+      }, 20000);
+    }
+    onClose(); 
   };
 
   return (
-    <Modal open={open} onClose={onClose} aria-labelledby="alert-modal-title" aria-describedby="alert-modal-description">
-      <Box
+    <Modal open={open} onClose={onClose}>
+      <Backdrop
+        open={open}
         sx={{
           position: "absolute",
           top: "50%",
@@ -31,23 +41,16 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, onClose, success, message
           textAlign: "center",
         }}
       >
-        {success ? (
-          <Lottie animationData={successAnimation} loop={false} style={{ width: 150, height: 150 }} />
-        ) : (
-          <Typography variant="h4" color="error" sx={{ mb: 2 }}>
-            ❌ Erro!
-          </Typography>
-        )}
-        <Typography id="alert-modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
-          {success ? "Sucesso!" : "Erro!"}
-        </Typography>
-        <Typography id="alert-modal-description" sx={{ mb: 4 }}>
-          {message}
-        </Typography>
-        <Button variant="contained" color="primary" onClick={handleClose}>
-          {success ? (redirectPath ? "Redirecionando..." : "OK") : "Fechar"}
-        </Button>
-      </Box>
+        <SuccessAnimation
+          optionsProps={{
+            loop: false,
+            autoplay: true,
+            onAnimationComplete: handleAnimationComplete,
+            message: message,
+            status: success
+          }}
+        />
+      </Backdrop>
     </Modal>
   );
 };

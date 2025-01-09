@@ -20,17 +20,19 @@ import {
 import { DAMAGE_DEGREE, PATIENT_RACE, SECTORS, STATUS_NOTIFICATION, TYPE_NOTIFICATION } from "@/utils/constants";
 import { defaultValuesNotifySchema, notifySchema } from "@/utils/validations/notifySchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, set } from "react-hook-form";
 import * as z from 'zod';
 import { api } from "@/utils/api";
 import AlertModal from "@/_components/AlertModal";
 import { useState } from "react";
 import { AlertModalProps } from "@/types/modals/AlertModalProps";
+import LoadingPage from "@/_components/errors/LoadingPage";
 
 // Inferindo os tipos com base no schema Zod
 type NotifyForm = z.infer<typeof notifySchema>;
 
 export default function NotifyReg() {
+  const [loading, setLoading] = useState(false);
   const [modalState, setModalState] = useState<AlertModalProps>({ 
     open: false, 
     success: false,
@@ -38,6 +40,7 @@ export default function NotifyReg() {
     redirectPath: "", 
     onClose: () => setModalState((prev) => ({ ...prev, open: false })),
   });
+
   const { control, handleSubmit, formState: { errors }, watch, setValue, reset} = useForm<NotifyForm>({
     resolver: zodResolver(notifySchema),
     defaultValues: defaultValuesNotifySchema,
@@ -53,6 +56,7 @@ export default function NotifyReg() {
   const isNotifyNC: boolean = typeNotify === 2; //Não conformidade
 
   const onSubmit = async (submitData: any) => {
+    setLoading(true);
     const mappedData = {
       usuario_responsavel: 1, 
       dt_ocorrencia: submitData.dateOccurrence,
@@ -93,16 +97,24 @@ export default function NotifyReg() {
         //Clean the fields of the form later sent data
         reset(defaultValuesNotifySchema);
       }
-    }catch(error){
+    }catch(error: any){
       setModalState({
         open: true,
         success: false,
-        message: `${error}`,
+        message: `${error.response?.data?.message} || "Erro ao enviar dados. Tente novamente!"`,
         redirectPath: "",
         onClose: () => setModalState((prev) => ({ ...prev, open: false })),
       });
+    }finally{
+      setLoading(false);
     }
   };
+
+  if(loading){
+    return (
+      <LoadingPage message="Enviando dados..." />
+    );
+  }
 
   return (
     <Container maxWidth="xl">
@@ -522,7 +534,7 @@ export default function NotifyReg() {
                 type="submit"
                 onClick={() => setValue("status", STATUS_NOTIFICATION[0].id)}
               >
-                Enviar à Qualidade
+              {loading ? 'Enviando...' : 'Enviar à Qualidade'}
               </Button>
             </Grid>
           </Grid>
