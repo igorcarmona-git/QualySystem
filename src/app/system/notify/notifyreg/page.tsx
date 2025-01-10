@@ -101,7 +101,7 @@ export default function NotifyReg() {
       setModalState({
         open: true,
         success: false,
-        message: `${error.response?.data?.message} || "Erro ao enviar dados. Tente novamente!"`,
+        message: `Ocorreu ao enviar dados: ${error}`,
         redirectPath: "",
         onClose: () => setModalState((prev) => ({ ...prev, open: false })),
       });

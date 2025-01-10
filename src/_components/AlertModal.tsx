@@ -16,11 +16,6 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, onClose, success, message
     if (success && redirectPath) {
       router.push(redirectPath); 
     }
-    if(!success){
-      setTimeout(() => {
-        onClose();
-      }, 20000);
-    }
     onClose(); 
   };
 

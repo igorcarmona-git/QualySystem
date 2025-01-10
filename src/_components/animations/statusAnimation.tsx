@@ -29,8 +29,8 @@ const SuccessAnimation: React.FC<SuccessAnimationProps> = ({ optionsProps }) => 
         autoplay={autoplay}
         onComplete={onAnimationComplete}
       />
-      <Typography variant="h5" color={textColor} sx={{ mt: 2 }}>
-        {message || (status ? "Operação realizada com sucesso!" : "Ocorreu um erro ao enviar os dados.")}
+      <Typography variant="h6" color={textColor} sx={{ mt: 2 }}>
+        {message}
       </Typography>
     </Box>
   );
