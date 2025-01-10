@@ -5,8 +5,6 @@ import {
   Box,
   Container,
   Typography,
-  Button,
-  Stack,
 } from '@mui/material';
 
 const SistemaPage: React.FC = () => {
