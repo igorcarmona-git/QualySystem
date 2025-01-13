@@ -1,4 +1,3 @@
-import { parse } from "path";
 import { z } from "zod";
 
 // Obtém a data atual no formato "YYYY-MM-DD"

@@ -65,6 +65,13 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
     setOpenSubMenu((prevOpen) => (prevOpen === id ? null : id));
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userdata');
+
+    router.push('/auth/login');
+  };
+
   const pages: Page[] = [
     {
       id: 1,
@@ -72,7 +79,7 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
       icon: <CircleNotificationsIcon />,
       subPages: [
         { id: 11, title: 'Registrar' },
-        { id: 12, title: 'Minhas notificações' },
+        { id: 12, title: 'Notificações' },
         { id: 13, title: 'Plano de Ação' },
       ],
     },
@@ -213,9 +220,9 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
               <AccountCircleIcon sx={{ mr: 1 }} />
               Perfil
             </MenuItem>
-            <MenuItem>
-              <LogoutIcon sx={{ mr: 1 }} />
-              Sair do sistema
+            <MenuItem onClick={() => router.push('/') }>
+              <LogoutIcon sx={{ mr: 1 }} onClick={() => handleLogout}/> 
+                Sair do sistema
             </MenuItem>
           </Menu>
         </Toolbar>

@@ -18,18 +18,14 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { DAMAGE_DEGREE, PATIENT_RACE, SECTORS, STATUS_NOTIFICATION, TYPE_NOTIFICATION } from "@/utils/constants";
-import { defaultValuesNotifySchema, notifySchema } from "@/utils/validations/notifySchema";
+import { defaultValuesNotifySchema, NotifySchema, notifySchema } from "@/utils/validations/notifySchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller, set } from "react-hook-form";
-import * as z from 'zod';
 import { api } from "@/utils/api";
 import AlertModal from "@/_components/AlertModal";
 import { useState } from "react";
 import { AlertModalProps } from "@/types/modals/AlertModalProps";
 import LoadingPage from "@/_components/errors/LoadingPage";
-
-// Inferindo os tipos com base no schema Zod
-type NotifyForm = z.infer<typeof notifySchema>;
 
 export default function NotifyReg() {
   const [loading, setLoading] = useState(false);
@@ -41,7 +37,7 @@ export default function NotifyReg() {
     onClose: () => setModalState((prev) => ({ ...prev, open: false })),
   });
 
-  const { control, handleSubmit, formState: { errors }, watch, setValue, reset} = useForm<NotifyForm>({
+  const { control, handleSubmit, formState: { errors }, watch, setValue, reset} = useForm<NotifySchema>({
     resolver: zodResolver(notifySchema),
     defaultValues: defaultValuesNotifySchema,
   });
@@ -49,9 +45,6 @@ export default function NotifyReg() {
   const sectorNotify = watch("sectorNotify");
   const sectorNotified = watch("sectorNotified");
   const typeNotify = watch("typeNotify");
-
-  const isSectorsEqual: boolean =
-    sectorNotify === sectorNotified && sectorNotify !== 0;
 
   const isNotifyNC: boolean = typeNotify === 2; //Não conformidade
 
@@ -101,7 +94,7 @@ export default function NotifyReg() {
       setModalState({
         open: true,
         success: false,
-        message: `Ocorreu ao enviar dados: ${error}`,
+        message: `Ocorreu um erro ao enviar dados: ${error}`,
         redirectPath: "",
         onClose: () => setModalState((prev) => ({ ...prev, open: false })),
       });
@@ -482,11 +475,6 @@ export default function NotifyReg() {
                   </FormControl>
                 )}
               />
-              {isSectorsEqual && (
-                <FormHelperText error>
-                  Os setores notificante e notificado devem ser diferentes.
-                </FormHelperText>
-              )}
             </Grid>
 
             {/* Involved */}
@@ -527,7 +515,6 @@ export default function NotifyReg() {
             {/* Submit Button */}
             <Grid item xs={12}>
               <Button
-                disabled={isSectorsEqual}
                 variant="contained"
                 color="primary"
                 sx={{ mt: 3, mb: 2 }}

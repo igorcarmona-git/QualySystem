@@ -17,7 +17,6 @@ import { z } from "zod";
 type DirectorForm = z.infer<typeof directorSchema>;
 
 export default function DirectorReg() {
-  // Configuração do react-hook-form com validação Zod
   const {
     register,
     handleSubmit,

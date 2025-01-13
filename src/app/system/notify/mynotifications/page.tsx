@@ -16,56 +16,65 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
-import { usePagination } from '@/utils/common/pagination/usePagination';
 import CustomizedSteppers from '@/_components/Stepper';
 import Link from 'next/link';
-import axios from 'axios';
 import LoadingPage from '@/_components/errors/LoadingPage';
 import { Notification } from '@/types/notifications';
+import { api } from '@/utils/api';
 
 export default function NotificationsList() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true); // Estado para controle de carregamento
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  // Função para buscar notificações da API
+  // Buscar notificações da API
   useEffect(() => {
     async function fetchNotifications() {
       try {
-        const response = await axios.get(
-          'https://jsonplaceholder.typicode.com/posts'
-        );
+        const response = await api.get('buscaNotificacoes');
 
-        // Mapeia os dados retornados da API para o formato usado no componente
-        const formattedNotifications = response.data.map((item) => ({
-          id: item.id.toString(),
-          title: item.title,
-          description: item.body,
-          status: ['Enviado à qualidade', 'Em análise', 'Concluído'], // Exemplo de status fixo
+        // Mapeando a resposta para o formato Notification
+        const formattedNotifications = response.data.map((item: any) => ({
+          id: item.id,
+          title: item.titulo,
+          description: item.descricao,
+          status: ['Enviado à qualidade', 'Em análise', 'Concluído'],
         }));
 
         setNotifications(formattedNotifications);
       } catch (error) {
         console.error('Erro ao buscar notificações:', error);
       } finally {
-        setLoading(false); // Finaliza o estado de carregamento
+        setLoading(false);
       }
     }
 
     fetchNotifications();
   }, []);
 
-  // Hook de paginação
-  const { currentItems: paginatedNotifications, currentPage, totalPages, handlePageChange } =
-    usePagination<Notification>(notifications, itemsPerPage);
+  // Calcular total de páginas
+  const totalPages = Math.ceil(notifications.length / itemsPerPage);
 
-  // Exibir indicador de carregamento enquanto os dados estão sendo buscados
+  // Filtrar notificações com base na página atual
+  const paginatedNotifications = notifications.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Atualiza a página ao mudar na paginação
+  const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Rola para o topo ao mudar de página
+  };
+
   if (loading) {
     return <LoadingPage message="Carregando notificações..." />;
   }
 
   return (
     <Container maxWidth="xl">
+      {/* Título e Filtro */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Typography variant="h5" fontWeight="bold">
           Minhas notificações
@@ -78,6 +87,7 @@ export default function NotificationsList() {
         </Box>
       </Box>
 
+      {/* Cards de Notificações */}
       <Grid container spacing={3}>
         {paginatedNotifications.map((notification) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={notification.id}>
@@ -105,10 +115,7 @@ export default function NotificationsList() {
                     : notification.description}
                 </Typography>
                 <Box mt={2}>
-                  <CustomizedSteppers
-                    steps={notification.status}
-                    activeStep={0} // Exemplo de passo ativo
-                  />
+                  <CustomizedSteppers steps={notification.status} activeStep={0} />
                 </Box>
               </CardContent>
               <CardActions sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
@@ -129,12 +136,15 @@ export default function NotificationsList() {
         ))}
       </Grid>
 
+      {/* Paginação */}
       <Box display="flex" justifyContent="center" mt={4}>
         <Pagination
           count={totalPages}
           page={currentPage}
           onChange={handlePageChange}
           color="primary"
+          shape="rounded"
+          size="large"
         />
       </Box>
     </Container>
