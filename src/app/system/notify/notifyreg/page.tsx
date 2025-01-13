@@ -42,8 +42,6 @@ export default function NotifyReg() {
     defaultValues: defaultValuesNotifySchema,
   });
 
-  const sectorNotify = watch("sectorNotify");
-  const sectorNotified = watch("sectorNotified");
   const typeNotify = watch("typeNotify");
 
   const isNotifyNC: boolean = typeNotify === 2; //Não conformidade

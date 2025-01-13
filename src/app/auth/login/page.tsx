@@ -64,7 +64,7 @@ const LoginPage: React.FC = () => {
           success: true,
           message: `${message}`,
           redirectPath: "/system",
-          onClose: () => router.push("/system"),
+          onClose: () => setModalState((prev) => ({ ...prev, open: false })),
         });
         reset(defaultValuesLoginSchema);
       }
@@ -74,7 +74,7 @@ const LoginPage: React.FC = () => {
         success: false,
         message: `Ocorreu um erro ao fazer login: ${error.message}`,
         redirectPath: "",
-        onClose: () => setModalState((prev) => ({ ...prev, open: false })),
+        onClose: () => setModalState((prev) => ({ ...prev, open: false })), 
       });
     } finally {
       setLoading(false);

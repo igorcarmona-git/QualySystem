@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Typography, Backdrop, Box } from "@mui/material";
+import { Modal, Backdrop} from "@mui/material";
 import { useRouter } from "next/navigation";
 import { AlertModalProps } from "@/types/modals/AlertModalProps";
 import SuccessAnimation from "./animations/statusAnimation";
