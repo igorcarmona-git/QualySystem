@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
     onClose: () => setModalState((prev) => ({ ...prev, open: false })),
   });
 
-  // Integrando com React Hook Form
+  // React Hook Form
   const { control, handleSubmit, formState: { errors }, reset } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: defaultValuesLoginSchema,
@@ -46,6 +46,7 @@ const LoginPage: React.FC = () => {
   const onSubmit = async (submitData: LoginSchema) => {
     setLoading(true);
 
+    // Mapping data zod to send to API
     const mappedData = {
       user: submitData.user,
       pass: submitData.password
@@ -53,16 +54,18 @@ const LoginPage: React.FC = () => {
 
     try {
       const response = await api.post("authenticate", mappedData);
-      const { status, data: message } = response;
-
-      const { User: userdata, token } = response.data;
-      console.log(userdata, token);
+      const { status, data } = response;
 
       if (status === 200) {
+        localStorage.setItem('authToken', data?.token);
+        localStorage.setItem('username', data?.user);
+        console.log(localStorage.getItem('authToken'));
+        console.log(localStorage.getItem('username'));
+
         setModalState({
           open: true,
           success: true,
-          message: `${message}`,
+          message: `${data?.message}`,
           redirectPath: "/system",
           onClose: () => setModalState((prev) => ({ ...prev, open: false })),
         });

@@ -66,11 +66,17 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userdata');
+    if(confirm('Tem certeza que deseja sair?')){
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('username');
+  
+      console.log('authToken após remoção:', localStorage.getItem('authToken')); 
+      console.log('username após remoção:', localStorage.getItem('username'));   
+  
+      router.push('/auth/login');  
+    }
+};
 
-    router.push('/auth/login');
-  };
 
   const pages: Page[] = [
     {
