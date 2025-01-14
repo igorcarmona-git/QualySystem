@@ -37,8 +37,8 @@ export default function NotificationsList() {
         // Mapeando a resposta para o formato Notification
         const formattedNotifications = response.data.map((item: any) => ({
           id: item.id,
-          title: item.titulo,
-          description: item.descricao,
+          title: item.titulo || '',
+          description: item.descricao || '',
           status: ['Enviado à qualidade', 'Em análise', 'Concluído'],
         }));
 

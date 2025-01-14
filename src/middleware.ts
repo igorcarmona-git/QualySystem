@@ -4,6 +4,14 @@ import { cookies } from 'next/headers';
 /**
  * Middleware function to protect specific routes by checking user authentication.
  * 
+ * Why Doesn't the Middleware Replace the Interceptor?
+ * Middleware:
+ *  - Acts before the page loads.
+ *  - Does not intercept the application's HTTP requests to APIs.
+ * Interceptor:
+ * - Acts during the application's execution in the browser.
+ * - Ensures the token is included with HTTP requests to the backend.
+ * 
  * @param {NextRequest} request - The incoming request object from Next.js
  * @returns {NextResponse} - Proceeds with the request or redirects to the login page if unauthorized
  */

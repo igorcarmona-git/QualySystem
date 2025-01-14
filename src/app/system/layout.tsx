@@ -66,7 +66,7 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
     setOpenSubMenu((prevOpen) => (prevOpen === id ? null : id));
   };
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     Cookies.remove('authToken');
     Cookies.remove('username');
     
@@ -222,8 +222,8 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
               <AccountCircleIcon sx={{ mr: 1 }} />
               Perfil
             </MenuItem>
-            <MenuItem onClick={() => router.push('/') }>
-              <LogoutIcon sx={{ mr: 1 }} onClick={() => handleLogout}/> 
+            <MenuItem onClick={ () => handleLogout()}>
+              <LogoutIcon sx={{ mr: 1 }}/> 
                 Sair do sistema
             </MenuItem>
           </Menu>
