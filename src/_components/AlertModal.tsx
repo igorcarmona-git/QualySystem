@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Backdrop} from "@mui/material";
+import { Modal, Backdrop } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { AlertModalProps } from "@/types/modals/AlertModalProps";
 import SuccessAnimation from "./animations/statusAnimation";
@@ -14,13 +14,19 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, onClose, success, message
    */
   const handleAnimationComplete = () => {
     if (success && redirectPath) {
-      router.push(redirectPath); 
+      router.push(redirectPath);
     }
-    onClose(); 
+    onClose();
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={() => {}}  //Here we don't want to close the modal
+      disableEscapeKeyDown  //Here we don't want to close the modal by key press ESC
+      aria-labelledby="alert-modal-title"
+      aria-describedby="alert-modal-description"
+    >
       <Backdrop
         open={open}
         sx={{
@@ -34,6 +40,7 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, onClose, success, message
           p: 4,
           borderRadius: 2,
           textAlign: "center",
+          pointerEvents: "none", // Bloqueia interação com o modal
         }}
       >
         <SuccessAnimation
@@ -42,7 +49,7 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, onClose, success, message
             autoplay: true,
             onAnimationComplete: handleAnimationComplete,
             message: message,
-            status: success
+            status: success,
           }}
         />
       </Backdrop>

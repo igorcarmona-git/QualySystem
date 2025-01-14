@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AppBar,
   Box,
@@ -49,6 +49,12 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const username: string = Cookies.get('username') || '';
+    setUsername(username);
+  }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -71,8 +77,7 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
     Cookies.remove('username');
     
     router.push('/auth/login');  
-};
-
+  };
 
   const pages: Page[] = [
     {
@@ -211,7 +216,7 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
             onClose={handleMenuClose}
           >
             <div className='flex p-2 items-center justify-center'>
-              <span>Nome do Usuário</span>
+              <span>{username}</span>
             </div>
             <Divider variant="fullWidth" color='blue' />
             <MenuItem onClick={() => router.push('/system/config')}>
