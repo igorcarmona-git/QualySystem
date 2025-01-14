@@ -20,6 +20,7 @@ import LoadingPage from '@/_components/errors/LoadingPage';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 import AlertModal from '@/_components/AlertModal';
+import Cookies from 'js-cookie';
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
@@ -57,10 +58,8 @@ const LoginPage: React.FC = () => {
       const { status, data } = response;
 
       if (status === 200) {
-        localStorage.setItem('authToken', data?.token);
-        localStorage.setItem('username', data?.user);
-        console.log(localStorage.getItem('authToken'));
-        console.log(localStorage.getItem('username'));
+        Cookies.set('authToken', data?.token);
+        Cookies.set('username', data?.user);
 
         setModalState({
           open: true,

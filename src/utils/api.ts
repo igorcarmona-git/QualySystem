@@ -11,30 +11,4 @@ export const api = axios.create({
   },
 });
 
-// Interceptor used to add the token to the request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken');
-  const authRequestToken = token ? token : null;
-  config.headers.Authorization = authRequestToken;
-  return config;
-}, 
-    (error) => Promise.reject(error)
-);
-
-// Interceptor used to remove the token to the response
-api.interceptors.response.use((response) => {
-  return response;
-}, async (error) => {
-    const originalConfig = error.config;
-    console.log(error.response.status);
-
-    if(error.response.status == 401){
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('username');
-        window.location.href = '/auth/login';
-    }
-    return Promise.reject(error);
-}
-);
-
 

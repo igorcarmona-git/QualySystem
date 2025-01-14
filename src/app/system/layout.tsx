@@ -34,6 +34,7 @@ import TaskIcon from '@mui/icons-material/Task';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import { useRouter } from 'next/navigation';
 import { Page } from '@/types/pages';
+import Cookies from 'js-cookie';
 
 // Interface para descrever as propriedades do layout
 interface LayoutProps {
@@ -65,16 +66,11 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
     setOpenSubMenu((prevOpen) => (prevOpen === id ? null : id));
   };
 
-  const handleLogout = () => {
-    if(confirm('Tem certeza que deseja sair?')){
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('username');
-  
-      console.log('authToken após remoção:', localStorage.getItem('authToken')); 
-      console.log('username após remoção:', localStorage.getItem('username'));   
-  
-      router.push('/auth/login');  
-    }
+  const handleLogout = async () => {
+    Cookies.remove('authToken');
+    Cookies.remove('username');
+    
+    router.push('/auth/login');  
 };
 
 
