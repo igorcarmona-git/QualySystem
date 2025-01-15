@@ -29,7 +29,7 @@ const SuccessAnimation: React.FC<SuccessAnimationProps> = ({ optionsProps }) => 
         autoplay={autoplay}
         onComplete={onAnimationComplete}
       />
-      <Typography variant="h6" color={textColor} sx={{ mt: 2, flexDirection: "column" }}>
+      <Typography variant="h6" color={textColor} sx={{ mt: 2 }}>
         {message}
       </Typography>
     </Box>

@@ -92,7 +92,7 @@ export default function NotifyReg() {
       setModalState({
         open: true,
         success: false,
-        message: `Ocorreu um erro ao enviar dados: ${error}`,
+        message: `Ocorreu um erro ao enviar dados para o servidor - Erro: \n${error}`,
         redirectPath: "",
         onClose: () => setModalState((prev) => ({ ...prev, open: false })),
       });

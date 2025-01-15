@@ -24,8 +24,6 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, onClose, success, message
       open={open}
       onClose={() => {}}  //Here we don't want to close the modal
       disableEscapeKeyDown  //Here we don't want to close the modal by key press ESC
-      aria-labelledby="alert-modal-title"
-      aria-describedby="alert-modal-description"
     >
       <Backdrop
         open={open}
