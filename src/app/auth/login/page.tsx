@@ -20,10 +20,11 @@ import LoadingPage from '@/_components/errors/LoadingPage';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 import AlertModal from '@/_components/AlertModal';
-import Cookies from 'js-cookie';
+import { useAuth } from '@/context/AuthContext';
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [modalState, setModalState] = useState<AlertModalProps>({
@@ -31,7 +32,7 @@ const LoginPage: React.FC = () => {
     success: false,
     message: "",
     redirectPath: "",
-    onClose: () => setModalState((prev) => ({ ...prev, open: false })),
+    onClose: () => setModalState((prev) => ({ ...prev, open: false })), //Set the open state to false to close the modal
   });
 
   // React Hook Form
@@ -49,7 +50,7 @@ const LoginPage: React.FC = () => {
 
     // Mapping data zod to send to API
     const mappedData = {
-      user: submitData.user,
+      user: submitData.username,
       pass: submitData.password
     }
 
@@ -57,9 +58,9 @@ const LoginPage: React.FC = () => {
       const response = await api.post("authenticate", mappedData);
       const { status, data } = response;
 
+      // If login is successful, I set the token, username and userId in the cookies but in API I pass just the token at file: /src/utils/api.ts
       if (status === 200) {
-        Cookies.set('authToken', data?.token);
-        Cookies.set('username', data?.user);
+        login(data?.token, data?.id_user, data?.user);
 
         setModalState({
           open: true,
@@ -119,7 +120,7 @@ const LoginPage: React.FC = () => {
 
           {/* Campo de Usuário */}
           <Controller
-            name="user"
+            name="username"
             control={control}
             render={({ field }) => (
               <TextField
@@ -129,8 +130,8 @@ const LoginPage: React.FC = () => {
                 placeholder="Entre com seu usuário"
                 variant="outlined"
                 sx={{ mb: 3 }}
-                error={!!errors.user}
-                helperText={errors.user?.message}
+                error={!!errors.username}
+                helperText={errors.username?.message}
               />
             )}
           />

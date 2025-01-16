@@ -35,6 +35,8 @@ import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import { useRouter } from 'next/navigation';
 import { Page } from '@/types/pages';
 import Cookies from 'js-cookie';
+import { useAuth } from '@/context/AuthContext';
+// import CookieConsent from '@/_components/CookieConsent';
 
 // Interface para descrever as propriedades do layout
 interface LayoutProps {
@@ -46,6 +48,7 @@ const drawerWidth = 240;
 
 const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
+  const { userSession, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
@@ -70,13 +73,6 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleSubMenuToggle = (id: number) => {
     setOpenSubMenu((prevOpen) => (prevOpen === id ? null : id));
-  };
-
-  const handleLogout = () => {
-    Cookies.remove('authToken');
-    Cookies.remove('username');
-    
-    router.push('/auth/login');  
   };
 
   const pages: Page[] = [
@@ -227,7 +223,7 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
               <AccountCircleIcon sx={{ mr: 1 }} />
               Perfil
             </MenuItem>
-            <MenuItem onClick={ () => handleLogout()}>
+            <MenuItem onClick={ () => logout()}>
               <LogoutIcon sx={{ mr: 1 }}/> 
                 Sair do sistema
             </MenuItem>
@@ -274,6 +270,7 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
         <Toolbar />
         {children}
       </Box>
+      {/* <CookieConsent /> */}
     </Box>
   );
 };

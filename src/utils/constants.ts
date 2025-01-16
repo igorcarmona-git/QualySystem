@@ -85,3 +85,9 @@ export const STATUS_NOTIFICATION = [
     {id: 3, name: "Revisar"}, //Qualidade analisou e precisa arrumar
     {id: 4, name: "Concluido"}, //Aprova e gera plano de ação
 ]
+
+export const expiresToken = {
+    expires1h: 60 * 60,
+    expires24h: 60 * 60 * 24,
+    expires30days: 60 * 60 * 24 * 30,
+}

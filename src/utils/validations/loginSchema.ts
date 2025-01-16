@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-    user: z.string()
+    username: z.string()
         .min(1, "O usuário é obrigatório.")
         .trim(),
     password: z.
@@ -11,7 +11,7 @@ export const loginSchema = z.object({
 }) 
 
 export const defaultValuesLoginSchema = {
-    user: "",
+    username: "",
     password: ""
 }
 

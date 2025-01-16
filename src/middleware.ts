@@ -16,13 +16,8 @@ import { cookies } from 'next/headers';
  * @returns {NextResponse} - Proceeds with the request or redirects to the login page if unauthorized
  */
 export async function middleware(request: NextRequest) {
-  // Retrieve all cookies from the request
   const cookieStore = await cookies();
-
-  // Extract the authentication token from cookies
   const token = cookieStore.get('authToken');
-
-  // Define the routes that require authentication
   const protectedRoutes = ['/system'];
 
   // Check if the requested route starts with any protected route
@@ -30,7 +25,6 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(route)
   );
 
-  // If accessing a protected route without a valid token, redirect to login
   if (isProtectedRoute && !token) {
     const url = new URL('/auth/login', request.url);
 

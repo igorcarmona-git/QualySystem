@@ -28,7 +28,7 @@ export default function NotificationsList() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  // Buscar notificações da API
+  // Fetch notifications from the API
   useEffect(() => {
     async function fetchNotifications() {
       try {
@@ -53,20 +53,32 @@ export default function NotificationsList() {
     fetchNotifications();
   }, []);
 
-  // Calcular total de páginas
-  const totalPages = Math.ceil(notifications.length / itemsPerPage);
+// Calculate the total number of pages
+// Math.ceil() is used to round up to ensure all items are paginated correctly
+const totalPages = Math.ceil(notifications.length / itemsPerPage);
 
-  // Filtrar notificações com base na página atual
-  const paginatedNotifications = notifications.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+// ----------------Filter notifications based on the current page
 
-  // Atualiza a página ao mudar na paginação
-  const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // Rola para o topo ao mudar de página
-  };
+// notifications.slice(start, end) returns a shallow copy of a portion of the array without modifying the original array.
+
+// Calculation of the starting index:
+// If currentPage = 1 and itemsPerPage = 8:
+// (1 - 1) * 8 = 0 → Starts from index 0.
+// If currentPage = 2:
+// (2 - 1) * 8 = 8 → Starts from index 8. 
+const paginatedNotifications = notifications.slice(
+  (currentPage - 1) * itemsPerPage,  // Start index for slicing
+  currentPage * itemsPerPage         // End index (exclusive)
+);
+
+// Handle page change when the user interacts with pagination
+const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
+  // Update the current page state to the selected page number
+  setCurrentPage(page);
+
+  // Smoothly scroll the window to the top after changing the page
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
   if (loading) {
     return <LoadingPage message="Carregando notificações..." />;

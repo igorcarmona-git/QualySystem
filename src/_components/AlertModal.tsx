@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Backdrop } from "@mui/material";
+import { Modal, Box } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { AlertModalProps } from "@/types/modals/AlertModalProps";
 import SuccessAnimation from "./animations/statusAnimation";
@@ -7,11 +7,6 @@ import SuccessAnimation from "./animations/statusAnimation";
 const AlertModal: React.FC<AlertModalProps> = ({ open, onClose, success, message, redirectPath }) => {
   const router = useRouter();
 
-  /**
-   * Called when the animation completes and redirects to the specified path if there is one
-   * @returns void
-   * @onClose Function to close the modal
-   */
   const handleAnimationComplete = () => {
     if (success && redirectPath) {
       router.push(redirectPath);
@@ -22,27 +17,27 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, onClose, success, message
   return (
     <Modal
       open={open}
-      onClose={() => {}}  //Here we don't want to close the modal
-      disableEscapeKeyDown  //Here we don't want to close the modal by key press ESC
+      onClose={() => {}}  //Blocking the close 
+      disableEscapeKeyDown  //Blocking the escape key to close
     >
-      <Backdrop
-        open={open}
+      <Box
         sx={{
           position: "absolute",
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 300,
+          width: "90%",         
+          maxWidth: 250,         
+          maxHeight: "80vh",     //Max height of the modal content to avoid overflow
           bgcolor: "background.paper",
           boxShadow: 24,
-          p: 4,
+          p: 2,
           borderRadius: 2,
           textAlign: "center",
-          pointerEvents: "none", // Bloqueia interação com o modal
+          overflowY: "auto",     //Scroll content if it overflows
         }}
       >
-        <SuccessAnimation
-          optionsProps={{
+        <SuccessAnimation optionsProps={{
             loop: false,
             autoplay: true,
             onAnimationComplete: handleAnimationComplete,
@@ -50,7 +45,7 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, onClose, success, message
             status: success,
           }}
         />
-      </Backdrop>
+      </Box>
     </Modal>
   );
 };

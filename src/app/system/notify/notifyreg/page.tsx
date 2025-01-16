@@ -20,15 +20,17 @@ import {
 import { DAMAGE_DEGREE, PATIENT_RACE, SECTORS, STATUS_NOTIFICATION, TYPE_NOTIFICATION } from "@/utils/constants";
 import { defaultValuesNotifySchema, NotifySchema, notifySchema } from "@/utils/validations/notifySchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller, set } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { api } from "@/utils/api";
 import AlertModal from "@/_components/AlertModal";
 import { useState } from "react";
 import { AlertModalProps } from "@/types/modals/AlertModalProps";
 import LoadingPage from "@/_components/errors/LoadingPage";
+import { useAuth } from "@/context/AuthContext";
 
 export default function NotifyReg() {
   const [loading, setLoading] = useState(false);
+  const { userSession } = useAuth();
   const [modalState, setModalState] = useState<AlertModalProps>({ 
     open: false, 
     success: false,
@@ -43,13 +45,12 @@ export default function NotifyReg() {
   });
 
   const typeNotify = watch("typeNotify");
-
   const isNotifyNC: boolean = typeNotify === 2; //Não conformidade
 
   const onSubmit = async (submitData: any) => {
     setLoading(true);
     const mappedData = {
-      usuario_responsavel: 1, 
+      usuario_responsavel: userSession?.userId, 
       dt_ocorrencia: submitData.dateOccurrence,
       hr_ocorrencia: submitData.timeOccurrence,
       nomePaciente: submitData.patientName,
