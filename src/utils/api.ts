@@ -1,23 +1,37 @@
 import axios from 'axios';
-const BASE_URL = 'http://192.168.100.60:3000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 import Cookies from 'js-cookie';
 
-// Cria a instância do Axios
 export const api = axios.create({
-  baseURL: BASE_URL, // URL do backend
-  timeout: 5000,
+  baseURL: API_URL, // URL do backend
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// I use this interceptor to add the token to the request to send to the backend and not to manipulate the routes in frontend.
-// To validate token and return to loginPage if not authenticated is in middleware.ts file.
+
+// Eu uso este interceptor para adicionar o token à requisição enviada ao backend e não manipular as rotas no frontend. 
+// A validação do token e o redirecionamento para a página de login, caso não esteja autenticado, estão no arquivo middleware.ts.
 api.interceptors.request.use((config) => {
   const token = Cookies.get('authToken');
 
   if (token) {
     config.headers.Authorization = `${token}`;
   }
+  
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      Cookies.remove('authToken');
+      Cookies.remove('username');
+      Cookies.remove('userId');
+    }
+
+    return Promise.reject(error);
+  }
+);

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fundhospar - QualySystem",
+  title: "QualySystem",
   description: "Sistema criado e desenvolvido pela equipe TIC da Fundhospar.",
 };
 

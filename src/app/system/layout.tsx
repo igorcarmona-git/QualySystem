@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Box,
@@ -34,7 +34,6 @@ import TaskIcon from '@mui/icons-material/Task';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import { useRouter } from 'next/navigation';
 import { Page } from '@/types/pages';
-import Cookies from 'js-cookie';
 import { useAuth } from '@/context/AuthContext';
 // import CookieConsent from '@/_components/CookieConsent';
 
@@ -52,12 +51,6 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openSubMenu, setOpenSubMenu] = useState<number | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
-
-  useEffect(() => {
-    const username: string = Cookies.get('username') || '';
-    setUsername(username);
-  }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -120,8 +113,14 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
       icon: <AppRegistrationIcon />,
       subPages: [
         { id: 51, title: 'Diretorias' },
-        { id: 52, title: 'Setores' },
-        { id: 53, title: 'Tipos de Eventos' },
+        { id: 52, title: 'Setores'},
+        { id: 53, title: 'Tipos de Eventos',
+          subPages:[
+            {
+              id:54, title:'Registrar'
+            }
+          ]  
+        },
       ]
     },
   ];  
@@ -160,13 +159,18 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
                         }
                         if(subPage.id === 51){ //Cadastros - Diretorias
                           router.push('/system/registers/directors');
-                        }
+                        }  
+                        if(subPage.id === 53){ //Cadastros - tpEventos
+                          router.push('/system/registers/tpEvents');
+                        }  
                       }}>
+
                         <ListItemIcon>{subPage.icon}</ListItemIcon>
                         <ListItemText primary={subPage.title} />
                       </ListItemButton>
                     </ListItem>
                   ))}
+
                 </List>
               </Collapse>
             )}
@@ -212,7 +216,7 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
             onClose={handleMenuClose}
           >
             <div className='flex p-2 items-center justify-center'>
-              <span>{username}</span>
+              <span>{userSession?.username}</span>
             </div>
             <Divider variant="fullWidth" color='blue' />
             <MenuItem onClick={() => router.push('/system/config')}>
@@ -246,7 +250,7 @@ const SistemaLayout: React.FC<LayoutProps> = ({ children }) => {
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
           }}
         >
-          {drawer}
+          {drawer} 
         </Drawer>
         <Drawer
           variant="permanent"

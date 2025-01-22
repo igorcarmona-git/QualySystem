@@ -16,7 +16,6 @@ import {
   import SettingsIcon from "@mui/icons-material/Settings";
   import SecurityIcon from "@mui/icons-material/Security";
   import NotificationsIcon from "@mui/icons-material/Notifications";
-  import BusinessIcon from "@mui/icons-material/Business";
   
   export default function Config() {
     // Array de itens do menu lateral
@@ -39,19 +38,13 @@ import {
         icon: <NotificationsIcon />,
         selected: false,
       },
-      {
-        id: 4,
-        title: "Configurar Setores",
-        icon: <BusinessIcon />,
-        selected: false,
-      },
     ];
   
     return (
-      <Container maxWidth="xl">
-        <Grid container spacing={1}>
+      <Container maxWidth="xl" className="mt-8">
+        <Grid container spacing={4}>
           {/* Menu Lateral */}
-          <Grid item xs={8} sm={3}>
+          <Grid item xs={12} sm={3}>
             <Box
               sx={{
                 bgcolor: "#f5f5f5",

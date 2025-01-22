@@ -8,9 +8,7 @@ const AlertModal: React.FC<AlertModalProps> = ({ open, onClose, success, message
   const router = useRouter();
 
   const handleAnimationComplete = () => {
-    if (success && redirectPath) {
-      router.push(redirectPath);
-    }
+    if(redirectPath) return router.push(redirectPath);
     onClose();
   };
 

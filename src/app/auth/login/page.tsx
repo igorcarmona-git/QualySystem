@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState } from 'react';
@@ -60,7 +61,7 @@ const LoginPage: React.FC = () => {
 
       // If login is successful, I set the token, username and userId in the cookies but in API I pass just the token at file: /src/utils/api.ts
       if (status === 200) {
-        login(data?.token, data?.id_user, data?.user);
+        login(data?.token, data?.user, data?.id_user);
 
         setModalState({
           open: true,

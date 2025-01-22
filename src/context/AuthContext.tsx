@@ -4,7 +4,6 @@ import { createContext, useState, useEffect, ReactNode, useContext } from 'react
 import Cookies from 'js-cookie';
 import { AuthContextType, UserSession } from '@/types/context/contextTypes';
 import { useRouter } from 'next/navigation';
-import { expiresToken } from '@/utils/constants';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -12,17 +11,18 @@ interface AuthProviderProps {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Provider que gerencia a autenticação da aplicação
+//Provider que gerencia a autenticação da aplicação
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userSession, setUserSession] = useState<UserSession | null>(null);
   const router = useRouter();
 
-  // Verifica se o usuário está autenticado ao carregar a página
+  //Verifica se o usuário está autenticado ao carregar a página
   useEffect(() => {
     const authToken = Cookies.get('authToken');
     const username = Cookies.get('username');
     const userId = Cookies.get('userId');
 
+    //Se o token existir, mantém o usuário logado
     if (authToken && username && userId) {
       try {
         setUserSession({
@@ -37,20 +37,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, []);
 
-  // Função de login que armazena o token e atualiza o estado global
+  //Função para realizar o login
   const login = (token: string, username: string, id_user: number) => {
-    Cookies.set('authToken', token, { expires: expiresToken.expires1h}); // 1 hour
-    Cookies.set('username', username, { expires: expiresToken.expires1h}); 
-    Cookies.set('userId', String(id_user), { expires: expiresToken.expires1h});
+    Cookies.set('authToken', token, { expires: 60 * 60}); // 1 hour
+    Cookies.set('username', username, { expires: 60 * 60}); 
+    Cookies.set('userId', String(id_user), { expires: 60 * 60});
 
+    //Atualiza o estado global com os dados do usuário
     setUserSession({
-      userId: id_user,
+      userId: Number(id_user),
       username: username,
       authToken: token,
     });
   };
 
-  // Função de logout que limpa os cookies e reseta a sessão
+  //Função de logout que limpa os cookies e reseta a sessão
   const logout = () => {
     Cookies.remove('authToken');
     Cookies.remove('username');
@@ -60,6 +61,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     router.push('/auth/login');
   };
 
+  //Provedor do contexto que disponibiliza o login/logout e o estado do usuário globalmente
   return (
     <AuthContext.Provider value={{ userSession, login, logout }}>
       {children}
@@ -67,7 +69,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 };
 
-// Hook personalizado para acessar o contexto
+//Hook para acessar o contexto de autenticação
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

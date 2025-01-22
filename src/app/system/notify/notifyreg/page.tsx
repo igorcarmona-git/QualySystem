@@ -47,6 +47,7 @@ export default function NotifyReg() {
   const typeNotify = watch("typeNotify");
   const isNotifyNC: boolean = typeNotify === 2; //Não conformidade
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = async (submitData: any) => {
     setLoading(true);
     const mappedData = {
@@ -80,7 +81,7 @@ export default function NotifyReg() {
       if(status === 200){
         setModalState({
           open: true,
-          success: true,
+          success: true, //change animation for sucess or error
           message: `${message}`,
           redirectPath: "",
           onClose: () => setModalState((prev) => ({ ...prev, open: false })),
@@ -89,6 +90,7 @@ export default function NotifyReg() {
         //Clean the fields of the form later sent data
         reset(defaultValuesNotifySchema);
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any  
     }catch(error: any){
       setModalState({
         open: true,

@@ -80,14 +80,35 @@ export const DAMAGE_DEGREE = [
 ]
 
 export const STATUS_NOTIFICATION = [
-    {id: 1, name: "Enviado"}, //Foi enviado a qualidade
+    {id: 1, name: "Enviado à qualidade"}, //Foi enviado a qualidade
     {id: 2, name: "Em analise"}, //Foi pego pela qualidade para analisar
     {id: 3, name: "Revisar"}, //Qualidade analisou e precisa arrumar
     {id: 4, name: "Concluido"}, //Aprova e gera plano de ação
 ]
 
-export const expiresToken = {
-    expires1h: 60 * 60,
-    expires24h: 60 * 60 * 24,
-    expires30days: 60 * 60 * 24 * 30,
+
+// -------------------------------------------------- FUNCTIONS ----------------------------------------
+export function formatDateToBrazilian(dateString: string): string {
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+        console.error('Data inválida!');
+        return '';
+    }
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
 }
+
+export function getSectorName(sectorId: number){
+    const sector = SECTORS.find((s) => s.id === sectorId);
+    return sector ? sector.name : 'Setor desconhecido';
+};
+
+export function getStatusName(statusId: number){
+    const status = STATUS_NOTIFICATION.find((s) => s.id === statusId);
+    return status ? status.name : 'Status desconhecido';
+};
