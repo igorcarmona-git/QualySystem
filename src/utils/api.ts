@@ -1,9 +1,10 @@
 import axios from 'axios';
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_PORT = process.env.NEXT_PUBLIC_API_PORT;
 import Cookies from 'js-cookie';
 
 export const api = axios.create({
-  baseURL: API_URL, // URL do backend
+  baseURL: `${API_URL}:${API_PORT}`, // URL do backend
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
